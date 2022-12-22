@@ -1,11 +1,16 @@
 package main
 
 import (
+	"context"
 	cf "lecture/WBABEProject-23/config"
 	"lecture/WBABEProject-23/controller"
+	"lecture/WBABEProject-23/logger"
 	"lecture/WBABEProject-23/model"
 	"lecture/WBABEProject-23/route"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"golang.org/x/sync/errgroup"
@@ -35,5 +40,26 @@ func main() {
 		g.Go(func() error {
 			return mapi.ListenAndServe()
 		})
+		quit := make(chan os.Signal)
+		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+		<-quit
+		logger.Warn("Shutdown Server ...")
+
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		if err := mapi.Shutdown(ctx); err != nil {
+			logger.Error("Server Shutdown:", err)
+		}
+
+		select {
+		case <-ctx.Done():
+			logger.Info("timeout of 5 seconds.")
+		}
+
+		logger.Info("Server exiting")
 	}
+	if err := g.Wait(); err != nil {
+		logger.Error(err)
+	}
+
 }
