@@ -3,6 +3,7 @@ package route
 import (
 	"fmt"
 	ctl "lecture/WBABEProject-23/controller"
+	"lecture/WBABEProject-23/docs"
 
 	"github.com/gin-gonic/gin"
 )
@@ -55,6 +56,9 @@ func (p *Router) Index() *gin.Engine {
 	e.Use(gin.Logger())
 	e.Use(gin.Recovery())
 	e.Use(CORS())
+
+	e.GET("/swagger/:any", ginSwg.WrapHandler(swgFiles.Handler))
+	docs.SwaggerInfo.Host = "localhost:8080"
 
 	return e
 }
