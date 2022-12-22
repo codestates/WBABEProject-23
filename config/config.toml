@@ -1,6 +1,6 @@
 [server] ##nomal type
 mode = "dev"
-port = ":8080"
+host = "localhost:8080"
 
 [db] #data access object
 [db.admin]

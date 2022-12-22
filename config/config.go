@@ -17,7 +17,7 @@ type Log struct {
 type Config struct {
 	Server struct {
 		Mode string
-		Port string
+		Host string
 	}
 
 	DB map[string]map[string]interface{}
