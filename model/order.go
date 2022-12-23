@@ -21,24 +21,28 @@ const (
 
 type Order struct {
 	Id           primitive.ObjectID `bson:"_id"`
-	OrderID      int64              `bson:"orderId`
+	OrderID      int64              `bson:"orderid`
 	Orderer      string             `bson:"orderer"`
 	Status       int                `bson:"status"`
-	BusinessName string             `bson:"businessName`
+	BusinessName string             `bson:"businessname`
 	Menu         []MenuNum          `bson:"menu`
-	CreatedAt    time.Time          `bson:"createdAt`
+	CreatedAt    time.Time          `bson:"createdat`
 }
 
 type MenuNum struct {
-	MenuName string `bson:"menuName"`
+	MenuName string `bson:"menuname"`
 	Number   int    `bson:"number"`
 }
 
 func (m *Model) MakeOrder(order Order) {
-	year, month, day := order.CreatedAt.Date()
-	filter := bson.M{"created-at": bson.M{
-		"$gte": bson.M{"$dateFromParts": bson.M{"year": year, "month": month, "day": day}},
-		"$lt":  bson.M{"$dateFromParts": bson.M{"year": year, "month": month, "day": day + 1}},
+	now := time.Now().UTC()
+
+	// Set the start and end of the range to the start and end of the desired day
+	start := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
+	end := start.AddDate(0, 0, 1)
+	filter := bson.M{"createdat": bson.M{
+		"$gte": start,
+		"$lt":  end,
 	}}
 	count, err := m.colOrder.CountDocuments(context.TODO(), filter)
 	if err != nil {
