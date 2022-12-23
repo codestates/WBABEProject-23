@@ -75,7 +75,7 @@ func (p *Router) Index() *gin.Engine {
 	}
 	makeOrder := e.Group("/order", liteAuth())
 	{
-		makeOrder.POST("/", p.ct.MakeOrder)
+		makeOrder.POST("/make", p.ct.MakeOrder)
 	}
 	return e
 }

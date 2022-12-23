@@ -6,6 +6,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// MenuList godoc
+// @Summary call MenuList, return ok by json.
+// @메뉴 조회
+// @name MenuList
+// @Accept  json
+// @Produce  json
+// @Param id query string true "User input name"
+// @Param id query string true "User input sort할 컬럼이름"
+// @Param id query string true "User input order= 1은 오름찬순 그 외 내림차순 "
+// @Router /menu/list [GET]
+// @Success 200 {object} Controller
 func (p *Controller) MenuList(c *gin.Context) {
 	businessName := c.Query("name")
 	sortBy := c.Query("sort")

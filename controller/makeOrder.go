@@ -9,6 +9,15 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+// MakeOrder godoc
+// @Summary call MakeOrder, return ok by json.
+// @주문.
+// @name MakeOrder
+// @Accept  json
+// @Produce  json
+// @Param id body model.Order true "User input 주문자 이름, 주문 가게 이름, 메뉴 배열형태만 입력 ]"
+// @Router /order/make [POST]
+// @Success 200 {object} Controller
 func (p *Controller) MakeOrder(c *gin.Context) {
 	loc, err := time.LoadLocation("Asia/Seoul")
 	if err != nil {
