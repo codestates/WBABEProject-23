@@ -1,4 +1,70 @@
+definitions:
+  controller.Controller:
+    type: object
+  model.Menu:
+    properties:
+      isDeleted:
+        type: boolean
+      name:
+        type: string
+      origin:
+        type: string
+      price:
+        type: integer
+      score:
+        type: number
+      status:
+        type: integer
+    type: object
 info:
   contact: {}
-paths: {}
+paths:
+  /menu/admin/modify:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: 사업체 ID
+        in: header
+        name: Business-Id
+        required: true
+        type: string
+      - description: User input 바꿀 메뉴 이름 toUpdate로 추가, 바꿀내용만 작성
+        in: body
+        name: id
+        required: true
+        schema:
+          $ref: '#/definitions/model.Menu'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Controller'
+      summary: call ModifyMenu, return ok by json.
+  /menu/admin/new:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 사업체 ID
+        in: header
+        name: Business-Id
+        required: true
+        type: string
+      - description: User input
+        in: body
+        name: id
+        required: true
+        schema:
+          $ref: '#/definitions/model.Menu'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Controller'
+      summary: call NewMenu, return ok by json.
 swagger: "2.0"

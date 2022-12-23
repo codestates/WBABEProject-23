@@ -15,6 +15,7 @@ import (
 // @name NewMenu
 // @Accept  json
 // @Produce  json
+// @Param Business-Id header string true "사업체 ID"
 // @Param id body model.Menu true "User input"
 // @Router /menu/admin/new [POST]
 // @Success 200 {object} Controller
@@ -29,6 +30,16 @@ func (p *Controller) NewMenu(c *gin.Context) {
 	c.JSON(200, gin.H{"msg": "ok"})
 }
 
+// ModifyMenu godoc
+// @Summary call ModifyMenu, return ok by json.
+// @메뉴 수정/삭제.
+// @name ModifyMenu
+// @Accept  json
+// @Produce  json
+// @Param Business-Id header string true "사업체 ID"
+// @Param id body model.Menu true "User input 바꿀 메뉴 이름 toUpdate로 추가, 바꿀내용만 작성"
+// @Router /menu/admin/modify [PATCH]
+// @Success 200 {object} Controller
 func (p *Controller) ModifyMenu(c *gin.Context) {
 	var menu model.Menu
 	var jsonMap map[string]interface{}
