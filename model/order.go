@@ -3,7 +3,7 @@ package model
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
 const (
-	Receipting = iota
+	Receipting = iota + 1
 	ReceiptCancled
 	ReceiptComplete
 	AdditionalReceipt
