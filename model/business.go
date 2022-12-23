@@ -56,6 +56,7 @@ func (m *Model) CreateNewMenu(newMenu Menu, business string) {
 		fmt.Println(err)
 		panic(err)
 	}
+	fmt.Println(result)
 
 	// cursor, err := m.colBusiness.Find(context.TODO(), filter)
 	// if err != nil {
