@@ -60,4 +60,4 @@ Temporary Items
 # End of https://www.toptal.com/developers/gitignore/api/macos,go
 
 # 설정파일 업로드 x
-./config/config.toml
+config/config.toml

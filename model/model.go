@@ -10,7 +10,10 @@ import (
 )
 
 type Model struct {
-	client *mongo.Client
+	client      *mongo.Client
+	colBusiness *mongo.Collection
+	colUser     *mongo.Collection
+	colOrder    *mongo.Collection
 }
 
 func NewModel(config *config.Config) (*Model, error) {
@@ -18,13 +21,20 @@ func NewModel(config *config.Config) (*Model, error) {
 
 	var err error
 	mgUrl := fmt.Sprintf("%v", config.DB["admin"]["host"])
-	if r.client, err = mongo.Connect(context.Background(), options.Client().ApplyURI(mgUrl)); err != nil {
+	credential := options.Credential{
+		AuthSource: "admin",
+		Username:   fmt.Sprintf("%v", config.DB["admin"]["user"]),
+		Password:   fmt.Sprintf("%v", config.DB["admin"]["pass"]),
+	}
+	if r.client, err = mongo.Connect(context.Background(), options.Client().ApplyURI(mgUrl).SetAuth(credential)); err != nil {
 		return nil, err
 	} else if err := r.client.Ping(context.Background(), nil); err != nil {
 		return nil, err
 	} else {
 		db := r.client.Database("WBA_online_ordering")
-		fmt.Println(db)
+		r.colBusiness = db.Collection("business")
+		r.colUser = db.Collection("user")
+		r.colOrder = db.Collection("order")
 	}
 	return r, nil
 }

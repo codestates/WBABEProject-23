@@ -6,6 +6,8 @@ import (
 	"lecture/WBABEProject-23/docs"
 
 	"github.com/gin-gonic/gin"
+	swgFiles "github.com/swaggo/files"
+	ginSwg "github.com/swaggo/gin-swagger"
 )
 
 type Router struct {
@@ -59,6 +61,26 @@ func (p *Router) Index() *gin.Engine {
 
 	e.GET("/swagger/:any", ginSwg.WrapHandler(swgFiles.Handler))
 	docs.SwaggerInfo.Host = "localhost:8080"
+
+	menuAdmin := e.Group("/menu/admin", liteAuth())
+	{
+		menuAdmin.POST("/new", p.ct.NewMenu)
+		menuAdmin.PATCH("modify", p.ct.ModifyMenu)
+
+	}
+	menuService := e.Group("/menu", liteAuth())
+	{
+		menuService.GET("/list", p.ct.MenuList)
+		menuService.GET("/list/:name", p.ct.MenuReadReview)
+	}
+	order := e.Group("/order", liteAuth())
+	{
+		order.POST("/make", p.ct.MakeOrder)
+		order.GET("/list", p.ct.ListOrder) //주문 조회
+		order.PATCH("/update")             //주문 변경
+		order.PATCH("/admin/update")       //주문 상태 변경
+		order.GET("/admin/list")           //주문 상태 조회
+	}
 
 	return e
 }
