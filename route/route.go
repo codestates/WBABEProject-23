@@ -73,9 +73,14 @@ func (p *Router) Index() *gin.Engine {
 		menuService.GET("/list", p.ct.MenuList)
 		menuService.GET("/list/:name", p.ct.MenuReadReview)
 	}
-	makeOrder := e.Group("/order", liteAuth())
+	order := e.Group("/order", liteAuth())
 	{
-		makeOrder.POST("/make", p.ct.MakeOrder)
+		order.POST("/make", p.ct.MakeOrder)
+		order.GET("/list", p.ct.ListOrder) //주문 조회
+		order.PATCH("/update")             //주문 변경
+		order.PATCH("/admin/update")       //주문 상태 변경
+		order.GET("/admin/list")           //주문 상태 조회
 	}
+
 	return e
 }

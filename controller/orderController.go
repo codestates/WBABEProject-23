@@ -34,3 +34,10 @@ func (p *Controller) MakeOrder(c *gin.Context) {
 	p.md.MakeOrder(order)
 	c.JSON(200, gin.H{"msg": "ok"})
 }
+
+func (p *Controller) ListOrder(c *gin.Context) {
+	userName := c.Query("name")
+	result := p.md.ListOrder(userName)
+
+	c.JSON(200, gin.H{"msg": "ok", "list": result})
+}

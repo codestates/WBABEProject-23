@@ -7,6 +7,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 const (
@@ -56,4 +57,22 @@ func (m *Model) MakeOrder(order Order) {
 		panic(err)
 	}
 	fmt.Println(result.InsertedID)
+}
+
+func (m *Model) ListOrder(userName string) []Order {
+	filter := bson.M{"orderer": userName}
+	option := options.Find().SetProjection(bson.M{"orderer": 1, "status": 1, "businessname": 1, "menu": 1, "createdat": 1})
+	cursor, err := m.colOrder.Find(context.TODO(), filter, option)
+	if err != nil {
+		fmt.Println(err)
+		panic(err)
+	}
+	defer cursor.Close(context.TODO())
+
+	var orders []Order
+	if err = cursor.All(context.TODO(), &orders); err != nil {
+		fmt.Println(err)
+		panic(err)
+	}
+	return orders
 }
