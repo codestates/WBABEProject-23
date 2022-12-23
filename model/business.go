@@ -34,13 +34,13 @@ type Menu struct {
 	Price     int     `bson:"price"`
 	Origin    string  `bson:"origin"`
 	Score     float32 `bson:"score"`
-	IsDeleted bool    `bson:"is-deleted"`
+	IsDeleted bool    `bson:"is_deleted"`
 	Category  string  `bson:"category"`
 }
 
 type Review struct {
 	Orderer  primitive.ObjectID `bson:"orderer"`
-	MenuName string             `bson:"menu-name"`
+	MenuName string             `bson:"menu_name"`
 	Content  string             `bson:"content"`
 	Score    int                `bson:"score"`
 }

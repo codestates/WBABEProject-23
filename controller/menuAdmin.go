@@ -26,7 +26,7 @@ func (p *Controller) NewMenu(c *gin.Context) {
 		return
 	}
 	menu.Status = 1
-	business := c.GetHeader("Business-Id")
+	business := c.GetHeader("business_id")
 	p.md.CreateNewMenu(menu, business)
 	c.JSON(200, gin.H{"msg": "ok"})
 }
@@ -44,7 +44,7 @@ func (p *Controller) NewMenu(c *gin.Context) {
 func (p *Controller) ModifyMenu(c *gin.Context) {
 	var menu model.Menu
 	var jsonMap map[string]interface{}
-	business := c.GetHeader("Business-Id")
+	business := c.GetHeader("business_id")
 	if err := c.BindJSON(&jsonMap); err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
