@@ -1,5 +1,7 @@
 package model
 
+import "go.mongodb.org/mongo-driver/bson/primitive"
+
 const (
 	Receipting = iota
 	ReceiptCancled
@@ -11,6 +13,7 @@ const (
 )
 
 type Order struct {
-	Orderer User `bson:"orderer"`
-	Status  int  `bson:"status"`
+	Id      primitive.ObjectID `bson:"_id"`
+	Orderer User               `bson:"orderer"`
+	Status  int                `bson:"status"`
 }
