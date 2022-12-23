@@ -25,5 +25,8 @@ func (p *Controller) MenuList(c *gin.Context) {
 }
 
 func (p *Controller) MenuReadReview(c *gin.Context) {
-
+	businessName := c.Query("name")
+	menuName := c.Param("name")
+	p.md.ReadMenuReview(businessName, menuName)
+	c.JSON(200, gin.H{"msg": "ok"})
 }

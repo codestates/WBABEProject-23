@@ -46,11 +46,6 @@ type Review struct {
 }
 
 func (m *Model) CreateNewMenu(newMenu Menu, business string) {
-	// data, err := bson.Marshal(newMenu)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	panic(err)
-	// }
 	objId, err := primitive.ObjectIDFromHex(business)
 	if err != nil {
 		panic(err)
@@ -66,22 +61,6 @@ func (m *Model) CreateNewMenu(newMenu Menu, business string) {
 		panic(err)
 	}
 	fmt.Println(result)
-
-	// cursor, err := m.colBusiness.Find(context.TODO(), filter)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// defer cursor.Close(context.TODO())
-
-	// // Iterate through the cursor and print the documents
-	// var doc bson.M
-	// for cursor.Next(context.TODO()) {
-	// 	err := cursor.Decode(&doc)
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 	}
-	// 	fmt.Println(doc)
-	// }
 }
 
 func (m *Model) ModifyMenu(toUpdate string, business string, menu Menu) {
@@ -165,6 +144,30 @@ func (m *Model) ListMenu(toList string, sortBy string, sortOrder int) []Menu {
 			})
 		}
 	}
-
 	return menu
+}
+
+func (m *Model) ReadMenuReview(toRead string, menuName string) map[string]interface{} {
+	var result Business
+	filter := bson.M{"name": toRead}
+	option := options.FindOne().SetProjection(bson.M{"menu": 1, "review": 1})
+	if err := m.colBusiness.FindOne(context.TODO(), filter, option).Decode(&result); err != mongo.ErrNoDocuments {
+		fmt.Println("no document")
+		return map[string]interface{}{}
+	} else if err != nil {
+		fmt.Println(err)
+		panic(err)
+	}
+	var score float32
+	for _, res := range result.Menu {
+		if res.Name == menuName {
+			score = res.Score
+			break
+		}
+	}
+	val := map[string]interface{}{
+		"score":   score,
+		"reviews": result.Review,
+	}
+	return val
 }
