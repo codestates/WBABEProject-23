@@ -25,6 +25,7 @@ func (p *Controller) NewMenu(c *gin.Context) {
 		c.String(http.StatusBadRequest, "Bad request: %v", err)
 		return
 	}
+	menu.Status = 1
 	business := c.GetHeader("Business-Id")
 	p.md.CreateNewMenu(menu, business)
 	c.JSON(200, gin.H{"msg": "ok"})

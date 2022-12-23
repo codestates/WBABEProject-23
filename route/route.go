@@ -68,5 +68,10 @@ func (p *Router) Index() *gin.Engine {
 		menuAdmin.PATCH("modify", p.ct.ModifyMenu)
 
 	}
+	menuService := e.Group("/menu", liteAuth())
+	{
+		menuService.GET("/list", p.ct.MenuList)
+		menuService.GET("/list/:name", p.ct.MenuReadReview)
+	}
 	return e
 }
