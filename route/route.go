@@ -65,6 +65,7 @@ func (p *Router) Index() *gin.Engine {
 	menuAdmin := e.Group("/menu/admin", liteAuth())
 	{
 		menuAdmin.POST("/new", p.ct.NewMenu)
+		menuAdmin.PATCH("modify", p.ct.ModifyMenu)
 
 	}
 	return e
