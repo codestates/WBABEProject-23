@@ -22,7 +22,7 @@ const (
 type Order struct {
 	Id           primitive.ObjectID `bson:"_id"`
 	OrderID      int64              `bson:"orderId`
-	Orderer      primitive.ObjectID `bson:"orderer"`
+	Orderer      string             `bson:"orderer"`
 	Status       int                `bson:"status"`
 	BusinessName string             `bson:"businessName`
 	Menu         []MenuNum          `bson:"menu`
@@ -30,7 +30,7 @@ type Order struct {
 }
 
 type MenuNum struct {
-	MenuName string `bson:"menu_name"`
+	MenuName string `bson:"menuName"`
 	Number   int    `bson:"number"`
 }
 
