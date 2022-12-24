@@ -15,11 +15,10 @@ import (
 )
 
 type Business struct {
-	Id     primitive.ObjectID `bson:"_id"`
-	Name   string             `bson:"name"`
-	Admin  primitive.ObjectID `bson:"admin"`
-	Menu   []Menu             `bson:"menu"`
-	Review []Review           `bson:"review"`
+	Id    primitive.ObjectID `bson:"_id"`
+	Name  string             `bson:"name"`
+	Admin primitive.ObjectID `bson:"admin"`
+	Menu  []Menu             `bson:"menu"`
 }
 
 // menu status
@@ -36,13 +35,6 @@ type Menu struct {
 	Score     float32 `bson:"score"`
 	IsDeleted bool    `bson:"is_deleted"`
 	Category  string  `bson:"category"`
-}
-
-type Review struct {
-	Orderer  primitive.ObjectID `bson:"orderer"`
-	MenuName string             `bson:"menu_name"`
-	Content  string             `bson:"content"`
-	Score    int                `bson:"score"`
 }
 
 func (m *Model) CreateNewMenu(newMenu Menu, business string) {
@@ -147,27 +139,27 @@ func (m *Model) ListMenu(toList string, sortBy string, sortOrder int) []Menu {
 	return menu
 }
 
-func (m *Model) ReadMenuReview(toRead string, menuName string) map[string]interface{} {
-	var result Business
-	filter := bson.M{"name": toRead}
-	option := options.FindOne().SetProjection(bson.M{"menu": 1, "review": 1})
-	if err := m.colBusiness.FindOne(context.TODO(), filter, option).Decode(&result); err != mongo.ErrNoDocuments {
-		fmt.Println("no document")
-		return map[string]interface{}{}
-	} else if err != nil {
-		fmt.Println(err)
-		panic(err)
-	}
-	var score float32
-	for _, res := range result.Menu {
-		if res.Name == menuName {
-			score = res.Score
-			break
-		}
-	}
-	val := map[string]interface{}{
-		"score":   score,
-		"reviews": result.Review,
-	}
-	return val
-}
+// func (m *Model) ReadMenuReview(toRead string, menuName string) map[string]interface{} {
+// 	var result Business
+// 	filter := bson.M{"name": toRead}
+// 	option := options.FindOne().SetProjection(bson.M{"menu": 1, "review": 1})
+// 	if err := m.colBusiness.FindOne(context.TODO(), filter, option).Decode(&result); err != mongo.ErrNoDocuments {
+// 		fmt.Println("no document")
+// 		return map[string]interface{}{}
+// 	} else if err != nil {
+// 		fmt.Println(err)
+// 		panic(err)
+// 	}
+// 	var score float32
+// 	for _, res := range result.Menu {
+// 		if res.Name == menuName {
+// 			score = res.Score
+// 			break
+// 		}
+// 	}
+// 	val := map[string]interface{}{
+// 		"score":   score,
+// 		"reviews": result.Review,
+// 	}
+// 	return val
+// }

@@ -90,3 +90,40 @@ func (p *Controller) UpdateState(c *gin.Context) {
 		c.JSON(200, gin.H{"msg": "update request failed"})
 	}
 }
+
+type ReviewInput struct {
+	OrderID    string  `bson:"orderid`
+	BusinessID string  `bson:"businessid`
+	Orderer    string  `bson:"orderer"`
+	MenuName   string  `bson:"menuname"`
+	Content    string  `bson:"content"`
+	Score      float32 `bson:"score"`
+}
+
+func (p *Controller) MakeReview(c *gin.Context) {
+	var input ReviewInput
+	err := c.ShouldBind(&input)
+	if err != nil {
+		panic(err)
+	}
+	var review model.Review
+	review.OrderID, err = primitive.ObjectIDFromHex(input.OrderID)
+	if err != nil {
+		panic(err)
+	}
+	review.BusinessID, err = primitive.ObjectIDFromHex(input.BusinessID)
+	if err != nil {
+		panic(err)
+	}
+	review.Orderer = input.Orderer
+	review.MenuName = input.MenuName
+	review.Content = input.Content
+	review.Score = input.Score
+
+	result := p.md.WriteReview(review)
+	if result == 0 {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"msg": "no matching order"})
+		return
+	}
+	c.JSON(200, gin.H{"msg": "ok"})
+}
