@@ -76,10 +76,10 @@ func (p *Router) Index() *gin.Engine {
 	order := e.Group("/order", liteAuth())
 	{
 		order.POST("/make", p.ct.MakeOrder)
-		order.GET("/list", p.ct.ListOrder)       //주문 조회
-		order.PATCH("/update", p.ct.ModifyOrder) //주문 변경
-		order.PATCH("/admin/update")             //주문 상태 변경
-		order.GET("/admin/list")                 //주문 상태 조회
+		order.GET("/list", p.ct.ListOrder)                      //주문 조회
+		order.PATCH("/modify", p.ct.ModifyOrder)                //주문 변경
+		order.PATCH("/admin/update", p.ct.UpdateState)          //주문 상태 변경
+		order.GET("/admin/list", p.ct.AdminListOrderController) //주문 상태 조회
 	}
 
 	return e

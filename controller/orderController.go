@@ -10,8 +10,13 @@ import (
 )
 
 type ModifyOrderInput struct {
-	BusinessID string          `bson:"businessid"`
-	Menu       []model.MenuNum `bson:"menu"`
+	OrderID string          `bson:"orderid"`
+	Menu    []model.MenuNum `bson:"menu"`
+}
+
+type UpdateOrderStateInput struct {
+	OrderId string `bson:"orderid:`
+	State   int    `bson:"state"`
 }
 
 // MakeOrder godoc
@@ -35,7 +40,7 @@ func (p *Controller) MakeOrder(c *gin.Context) {
 	}
 	order.Id = primitive.NewObjectID()
 	order.CreatedAt = time.Now().In(loc)
-	order.Status = model.Receipting
+	order.State = model.Receipting
 	p.md.MakeOrder(order)
 	c.JSON(200, gin.H{"msg": "ok"})
 }
@@ -52,7 +57,7 @@ func (p *Controller) ModifyOrder(c *gin.Context) {
 	if err := c.ShouldBind(&input); err != nil {
 		panic(err)
 	}
-	objID, err := primitive.ObjectIDFromHex(input.BusinessID)
+	objID, err := primitive.ObjectIDFromHex(input.OrderID)
 	if err != nil {
 		panic(err)
 	}
@@ -63,4 +68,25 @@ func (p *Controller) ModifyOrder(c *gin.Context) {
 		c.JSON(200, gin.H{"msg": "update request failed"})
 	}
 
+}
+
+func (p *Controller) AdminListOrderController(c *gin.Context) {
+	businessName := c.Query("businessname")
+	result := p.md.AdminListOrder(businessName)
+	c.JSON(200, gin.H{"msg": "ok", "list": result})
+}
+
+func (p *Controller) UpdateState(c *gin.Context) {
+	var input UpdateOrderStateInput
+	c.ShouldBind(&input)
+	orderId, err := primitive.ObjectIDFromHex(input.OrderId)
+	if err != nil {
+		panic(err)
+	}
+	result := p.md.UpdateOrderState(orderId, input.State)
+	if result {
+		c.JSON(200, gin.H{"msg": "update request success"})
+	} else {
+		c.JSON(200, gin.H{"msg": "update request failed"})
+	}
 }

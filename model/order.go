@@ -6,6 +6,8 @@ import (
 	"reflect"
 	"time"
 
+	"go.mongodb.org/mongo-driver/mongo"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -28,7 +30,7 @@ type Order struct {
 	Id           primitive.ObjectID `bson:"_id"`
 	OrderID      int64              `bson:"orderid`
 	Orderer      string             `bson:"orderer"`
-	Status       int                `bson:"status"`
+	State        int                `bson:"state"`
 	BusinessName string             `bson:"businessname`
 	Menu         []MenuNum          `bson:"menu`
 	CreatedAt    time.Time          `bson:"createdat`
@@ -66,7 +68,7 @@ func (m *Model) MakeOrder(order Order) {
 
 func (m *Model) ListOrder(userName string) []Order {
 	filter := bson.M{"orderer": userName}
-	option := options.Find().SetProjection(bson.M{"orderer": 1, "status": 1, "businessname": 1, "menu": 1, "createdat": 1})
+	option := options.Find().SetProjection(bson.M{"orderer": 1, "state": 1, "businessname": 1, "menu": 1, "createdat": 1})
 	cursor, err := m.colOrder.Find(context.TODO(), filter, option)
 	if err != nil {
 		fmt.Println(err)
@@ -82,8 +84,8 @@ func (m *Model) ListOrder(userName string) []Order {
 	return orders
 }
 
-func (m *Model) ModifyOrder(business primitive.ObjectID, menu []MenuNum) bool {
-	filter := bson.M{"_id": business}
+func (m *Model) ModifyOrder(orderID primitive.ObjectID, menu []MenuNum) bool {
+	filter := bson.M{"_id": orderID}
 
 	var order Order
 	err := m.colOrder.FindOne(context.TODO(), filter).Decode(&order)
@@ -95,8 +97,8 @@ func (m *Model) ModifyOrder(business primitive.ObjectID, menu []MenuNum) bool {
 	if reflect.DeepEqual(order.Menu, menu) {
 		addition = true
 	}
-	status := order.Status
-	switch status {
+	state := order.State
+	switch state {
 	case DeliverComplete, Delivering, ReceiptCancled, AdditionalReceiptCancled:
 		return false
 	case ReceiptCooking, AdditionalReceiptCooking:
@@ -104,9 +106,39 @@ func (m *Model) ModifyOrder(business primitive.ObjectID, menu []MenuNum) bool {
 			return false
 		}
 	}
-	update := bson.M{"$set": bson.M{"menu": menu, "status": AdditionalReceipting}}
+	update := bson.M{"$set": bson.M{"menu": menu, "state": AdditionalReceipting}}
 	result, err := m.colOrder.UpdateOne(context.TODO(), filter, update)
 	if err != nil {
+		panic(err)
+	}
+	fmt.Println(result)
+	return true
+}
+
+func (m *Model) AdminListOrder(businessName string) []Order {
+	filter := bson.M{"businessname": businessName}
+	cursor, err := m.colOrder.Find(context.TODO(), filter)
+	if err != nil {
+		fmt.Println(err)
+		panic(err)
+	}
+	defer cursor.Close(context.TODO())
+	var order []Order
+	if err = cursor.All(context.TODO(), &order); err != nil {
+		panic(err)
+	}
+	return order
+}
+
+func (m *Model) UpdateOrderState(orderID primitive.ObjectID, state int) bool {
+	filter := bson.M{"_id": orderID}
+	update := bson.M{"$set": bson.M{"state": state}}
+
+	result, err := m.colOrder.UpdateOne(context.TODO(), filter, update)
+	if err == mongo.ErrNoDocuments {
+		fmt.Println(err)
+		return false
+	} else if err != nil {
 		panic(err)
 	}
 	fmt.Println(result)
