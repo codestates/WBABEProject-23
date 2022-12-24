@@ -10,6 +10,17 @@ definitions:
       orderID:
         type: string
     type: object
+  controller.NewMenuInput:
+    properties:
+      category:
+        type: string
+      name:
+        type: string
+      origin:
+        type: string
+      price:
+        type: integer
+    type: object
   controller.ReviewInput:
     properties:
       businessID:
@@ -46,7 +57,7 @@ definitions:
         type: integer
       score:
         type: number
-      status:
+      state:
         type: integer
     type: object
   model.MenuNum:
@@ -119,7 +130,7 @@ paths:
         name: id
         required: true
         schema:
-          $ref: '#/definitions/model.Menu'
+          $ref: '#/definitions/controller.NewMenuInput'
       produces:
       - application/json
       responses:

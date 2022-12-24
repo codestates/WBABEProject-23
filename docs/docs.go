@@ -76,7 +76,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.Menu"
+                            "$ref": "#/definitions/controller.NewMenuInput"
                         }
                     }
                 ],
@@ -362,6 +362,23 @@ const docTemplate = `{
                 }
             }
         },
+        "controller.NewMenuInput": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "origin": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "integer"
+                }
+            }
+        },
         "controller.ReviewInput": {
             "type": "object",
             "properties": {
@@ -417,7 +434,7 @@ const docTemplate = `{
                 "score": {
                     "type": "number"
                 },
-                "status": {
+                "state": {
                     "type": "integer"
                 }
             }

@@ -16,7 +16,7 @@ import (
 // @Accept  json
 // @Produce  json
 // @Param business_id header string true "사업체 ID"
-// @Param id body model.Menu true "User input"
+// @Param id body NewMenuInput true "User input"
 // @Router /menu/admin/new [POST]
 // @Success 200 {object} Controller
 func (p *Controller) NewMenu(c *gin.Context) {
@@ -25,20 +25,19 @@ func (p *Controller) NewMenu(c *gin.Context) {
 		c.String(http.StatusBadRequest, "Bad request: %v", err)
 		return
 	}
-	menu.Status = 1
+	menu.State = 1
+	menu.IsDeleted = false
 	business := c.GetHeader("business_id")
 	p.md.CreateNewMenu(menu, business)
 	c.JSON(200, gin.H{"msg": "ok"})
 }
 
+//swag input 용
 type NewMenuInput struct {
-	Name      string  `bson:"name"`
-	Stae      int     `bson:"state"`
-	Price     int     `bson:"price"`
-	Origin    string  `bson:"origin"`
-	Score     float32 `bson:"score"`
-	IsDeleted bool    `bson:"is_deleted"`
-	Category  string  `bson:"category"`
+	Name     string `bson:"name"`
+	Price    int    `bson:"price"`
+	Origin   string `bson:"origin"`
+	Category string `bson:"category"`
 }
 
 // ModifyMenu godoc
