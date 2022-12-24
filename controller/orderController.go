@@ -9,6 +9,11 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+type ModifyOrderInput struct {
+	BusinessID string          `bson:"businessid"`
+	Menu       []model.MenuNum `bson:"menu"`
+}
+
 // MakeOrder godoc
 // @Summary call MakeOrder, return ok by json.
 // @주문.
@@ -40,4 +45,22 @@ func (p *Controller) ListOrder(c *gin.Context) {
 	result := p.md.ListOrder(userName)
 
 	c.JSON(200, gin.H{"msg": "ok", "list": result})
+}
+
+func (p *Controller) ModifyOrder(c *gin.Context) {
+	var input ModifyOrderInput
+	if err := c.ShouldBind(&input); err != nil {
+		panic(err)
+	}
+	objID, err := primitive.ObjectIDFromHex(input.BusinessID)
+	if err != nil {
+		panic(err)
+	}
+	result := p.md.ModifyOrder(objID, input.Menu)
+	if result {
+		c.JSON(200, gin.H{"msg": "update request success"})
+	} else {
+		c.JSON(200, gin.H{"msg": "update request failed"})
+	}
+
 }

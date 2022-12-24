@@ -3,6 +3,7 @@ package model
 import (
 	"context"
 	"fmt"
+	"reflect"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -14,7 +15,10 @@ const (
 	Receipting = iota + 1
 	ReceiptCancled
 	ReceiptComplete
-	AdditionalReceipt
+	AdditionalReceipting
+	AdditionalReceiptingComplete
+	AdditionalReceiptCancled
+	AdditionalReceiptCooking
 	ReceiptCooking
 	Delivering
 	DeliverComplete
@@ -31,8 +35,9 @@ type Order struct {
 }
 
 type MenuNum struct {
-	MenuName string `bson:"menuname"`
-	Number   int    `bson:"number"`
+	MenuName   string `bson:"menuname"`
+	Number     int    `bson:"number"`
+	IsReviewed bool   `bson:"isreviewed"`
 }
 
 func (m *Model) MakeOrder(order Order) {
@@ -75,4 +80,35 @@ func (m *Model) ListOrder(userName string) []Order {
 		panic(err)
 	}
 	return orders
+}
+
+func (m *Model) ModifyOrder(business primitive.ObjectID, menu []MenuNum) bool {
+	filter := bson.M{"_id": business}
+
+	var order Order
+	err := m.colOrder.FindOne(context.TODO(), filter).Decode(&order)
+	if err != nil {
+		fmt.Println(err)
+		panic(err)
+	}
+	addition := false
+	if reflect.DeepEqual(order.Menu, menu) {
+		addition = true
+	}
+	status := order.Status
+	switch status {
+	case DeliverComplete, Delivering, ReceiptCancled, AdditionalReceiptCancled:
+		return false
+	case ReceiptCooking, AdditionalReceiptCooking:
+		if !addition {
+			return false
+		}
+	}
+	update := bson.M{"$set": bson.M{"menu": menu, "status": AdditionalReceipting}}
+	result, err := m.colOrder.UpdateOne(context.TODO(), filter, update)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(result)
+	return true
 }
