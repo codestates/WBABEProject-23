@@ -29,7 +29,7 @@ const (
 
 type Menu struct {
 	Name      string  `bson:"name"`
-	Status    int     `bson:"status"`
+	State     int     `bson:"state"`
 	Price     int     `bson:"price"`
 	Origin    string  `bson:"origin"`
 	Score     float32 `bson:"score"`
@@ -65,8 +65,8 @@ func (m *Model) ModifyMenu(toUpdate string, business string, menu Menu) {
 	if menu.Name != "" {
 		update["$set"].(bson.M)["menu.$.name"] = menu.Name
 	}
-	if menu.Status != 0 {
-		update["$set"].(bson.M)["menu.$.status"] = menu.Status
+	if menu.State != 0 {
+		update["$set"].(bson.M)["menu.$.status"] = menu.State
 	}
 	if menu.Price != 0 {
 		update["$set"].(bson.M)["menu.$.price"] = menu.Price
@@ -78,7 +78,7 @@ func (m *Model) ModifyMenu(toUpdate string, business string, menu Menu) {
 		update["$set"].(bson.M)["menu.$.score"] = menu.Score
 	}
 	if menu.IsDeleted {
-		update["$set"].(bson.M)["menu.$.is-deleted"] = menu.IsDeleted
+		update["$set"].(bson.M)["menu.$.is_deleted"] = menu.IsDeleted
 	}
 	result, err := m.colBusiness.UpdateOne(context.TODO(), filter, update)
 	if err == mongo.ErrNoDocuments {
@@ -158,7 +158,8 @@ func (m *Model) ReadMenuReview(toRead primitive.ObjectID, menuName string) map[s
 	}
 
 	filter := bson.M{"businessid": toRead, "menuname": menuName}
-	cursor, err := m.colReview.Find(context.TODO(), filter)
+	reviewOption := options.Find().SetProjection(bson.M{"orderer": 1, "menuname": 1, "content": 1, "score": 1})
+	cursor, err := m.colReview.Find(context.TODO(), filter, reviewOption)
 	if err != nil {
 		panic(err)
 	}

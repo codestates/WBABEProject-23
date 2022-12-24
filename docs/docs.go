@@ -29,7 +29,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "사업체 ID",
-                        "name": "Business-Id",
+                        "name": "business_id",
                         "in": "header",
                         "required": true
                     },
@@ -39,7 +39,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.Menu"
+                            "$ref": "#/definitions/controller.ModifyMenuInput"
                         }
                     }
                 ],
@@ -66,7 +66,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "사업체 ID",
-                        "name": "Business-Id",
+                        "name": "business_id",
                         "in": "header",
                         "required": true
                     },
@@ -76,7 +76,260 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.Menu"
+                            "$ref": "#/definitions/controller.NewMenuInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.Controller"
+                        }
+                    }
+                }
+            }
+        },
+        "/menu/list": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "call MenuList, return ok by json.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "name",
+                        "name": "name",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "sort할 컬럼이름",
+                        "name": "sort",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "order= 1은 오름찬순 그 외 내림차순 ",
+                        "name": "order",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.Controller"
+                        }
+                    }
+                }
+            }
+        },
+        "/menu/list/review": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "call MenuReadReview, return ok by json.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "가게 사업체 id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "메뉴 이름",
+                        "name": "name",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.Controller"
+                        }
+                    }
+                }
+            }
+        },
+        "/order/admin/list": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "call AdminListOrderController, return ok by json.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "사업체 이름",
+                        "name": "businessname",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.Controller"
+                        }
+                    }
+                }
+            }
+        },
+        "/order/admin/update": {
+            "patch": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "call UpdateState, return ok by json.",
+                "parameters": [
+                    {
+                        "description": "주문 번호, 상태 ",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.UpdateStateInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.Controller"
+                        }
+                    }
+                }
+            }
+        },
+        "/order/list": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "call ListOrder, return ok by json.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "유저이름",
+                        "name": "name",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.Controller"
+                        }
+                    }
+                }
+            }
+        },
+        "/order/make": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "call MakeOrder, return ok by json.",
+                "parameters": [
+                    {
+                        "description": "주문자 이름, 주문 가게 이름, 메뉴 배열형태만 입력 ]",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.MakeOrderInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.Controller"
+                        }
+                    }
+                }
+            }
+        },
+        "/order/modify": {
+            "patch": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "call ModifyOrder, return ok by json.",
+                "parameters": [
+                    {
+                        "description": "수정할 주문 번호, 변경한 주문 메뉴 [{메뉴이름, 수량}]",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.ModifyOrderSwaggerInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.Controller"
+                        }
+                    }
+                }
+            }
+        },
+        "/review": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "call MakeReview, return ok by json.",
+                "parameters": [
+                    {
+                        "description": "리뷰",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.ReviewInput"
                         }
                     }
                 ],
@@ -95,11 +348,81 @@ const docTemplate = `{
         "controller.Controller": {
             "type": "object"
         },
-        "model.Menu": {
+        "controller.MakeOrderInput": {
             "type": "object",
             "properties": {
+                "businessName": {
+                    "type": "string"
+                },
+                "menu": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "menuName": {
+                                "type": "string"
+                            },
+                            "number": {
+                                "type": "integer"
+                            }
+                        }
+                    }
+                },
+                "orderer": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.ModifyMenuInput": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
                 "isDeleted": {
                     "type": "boolean"
+                },
+                "origin": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "integer"
+                },
+                "state": {
+                    "type": "integer"
+                },
+                "toUpdate": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.ModifyOrderSwaggerInput": {
+            "type": "object",
+            "properties": {
+                "menu": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "menuName": {
+                                "type": "string"
+                            },
+                            "number": {
+                                "type": "integer"
+                            }
+                        }
+                    }
+                },
+                "orderID": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.NewMenuInput": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"
@@ -109,11 +432,39 @@ const docTemplate = `{
                 },
                 "price": {
                     "type": "integer"
+                }
+            }
+        },
+        "controller.ReviewInput": {
+            "type": "object",
+            "properties": {
+                "businessID": {
+                    "type": "string"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "menuName": {
+                    "type": "string"
+                },
+                "orderID": {
+                    "type": "string"
+                },
+                "orderer": {
+                    "type": "string"
                 },
                 "score": {
                     "type": "number"
+                }
+            }
+        },
+        "controller.UpdateStateInput": {
+            "type": "object",
+            "properties": {
+                "orderId": {
+                    "type": "string"
                 },
-                "status": {
+                "state": {
                     "type": "integer"
                 }
             }
