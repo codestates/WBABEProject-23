@@ -37,6 +37,16 @@ func (p *Controller) MenuList(c *gin.Context) {
 	c.JSON(200, gin.H{"msg": "ok", "list": menu})
 }
 
+// MenuReadReview godoc
+// @Summary call MenuReadReview, return ok by json.
+// @메뉴 리뷰 조회 서비스
+// @name MenuReadReview
+// @Accept  json
+// @Produce  json
+// @Param id query string true "가게 이름"
+// @Param id query string true "메뉴 이름"
+// @Router /menu/list/review [GET]
+// @Success 200 {object} Controller
 func (p *Controller) MenuReadReview(c *gin.Context) {
 	businessName := c.Query("id")
 	menuName := c.Query("name")

@@ -25,7 +25,7 @@ type UpdateOrderStateInput struct {
 // @name MakeOrder
 // @Accept  json
 // @Produce  json
-// @Param id body model.Order true "User input 주문자 이름, 주문 가게 이름, 메뉴 배열형태만 입력 ]"
+// @Param input body model.Order true "User input 주문자 이름, 주문 가게 이름, 메뉴 배열형태만 입력 ]"
 // @Router /order/make [POST]
 // @Success 200 {object} Controller
 func (p *Controller) MakeOrder(c *gin.Context) {
@@ -45,6 +45,15 @@ func (p *Controller) MakeOrder(c *gin.Context) {
 	c.JSON(200, gin.H{"msg": "ok"})
 }
 
+// ListOrder godoc
+// @Summary call ListOrder, return ok by json.
+// @주문자 - 주문조회 서비스
+// @name ListOrder
+// @Accept  json
+// @Produce  json
+// @Param name query string true "유저이름"
+// @Router /order/list [GET]
+// @Success 200 {object} Controller
 func (p *Controller) ListOrder(c *gin.Context) {
 	userName := c.Query("name")
 	result := p.md.ListOrder(userName)
@@ -52,6 +61,15 @@ func (p *Controller) ListOrder(c *gin.Context) {
 	c.JSON(200, gin.H{"msg": "ok", "list": result})
 }
 
+// ModifyOrder godoc
+// @Summary call ModifyOrder, return ok by json.
+// @주문자 - 주문 변경 서비스
+// @name ModifyOrder
+// @Accept  json
+// @Produce  json
+// @Param input body ModifyOrderInput true "수정할 주문 번호, 변경한 주문 메뉴 [{메뉴이름, 수량}]"
+// @Router /order/modify [PATCH]
+// @Success 200 {object} Controller
 func (p *Controller) ModifyOrder(c *gin.Context) {
 	var input ModifyOrderInput
 	if err := c.ShouldBind(&input); err != nil {
@@ -70,12 +88,30 @@ func (p *Controller) ModifyOrder(c *gin.Context) {
 
 }
 
+// AdminListOrderController godoc
+// @Summary call AdminListOrderController, return ok by json.
+// @가게에서 주문 목록 조회
+// @name AdminListOrderController
+// @Accept  json
+// @Produce  json
+// @Param businessname query string true "사업체 이름"
+// @Router /order/admin/list [GET]
+// @Success 200 {object} Controller
 func (p *Controller) AdminListOrderController(c *gin.Context) {
 	businessName := c.Query("businessname")
 	result := p.md.AdminListOrder(businessName)
 	c.JSON(200, gin.H{"msg": "ok", "list": result})
 }
 
+// UpdateState godoc
+// @Summary call UpdateState, return ok by json.
+// @가게에서 주문 상태 변경
+// @name UpdateState
+// @Accept  json
+// @Produce  json
+// @Param input body UpdateOrderStateInput true "주문자 번호, 상태 "
+// @Router /order/admin/update [PATCH]
+// @Success 200 {object} Controller
 func (p *Controller) UpdateState(c *gin.Context) {
 	var input UpdateOrderStateInput
 	c.ShouldBind(&input)
@@ -100,6 +136,15 @@ type ReviewInput struct {
 	Score      float32 `bson:"score"`
 }
 
+// MakeReview godoc
+// @Summary call MakeReview, return ok by json.
+// @리뷰 작성하기
+// @name MakeReview
+// @Accept  json
+// @Produce  json
+// @Param input body ReviewInput true "리뷰"
+// @Router /order/review [POST]
+// @Success 200 {object} Controller
 func (p *Controller) MakeReview(c *gin.Context) {
 	var input ReviewInput
 	err := c.ShouldBind(&input)
