@@ -69,10 +69,9 @@ func (p *Controller) ModifyMenu(c *gin.Context) {
 }
 
 type ModifyMenuInput struct {
-	State     int    `bson:"state"`
-	Price     int    `bson:"price"`
-	Origin    string `bson:"origin"`
-	IsDeleted bool   `bson:"is_deleted"`
-	Category  string `bson:"category"`
-	ToUpdate  string `bson:"toUpdate"`
+	State    int    `bson:"state"`
+	Price    int    `bson:"price"`
+	Origin   string `bson:"origin"`
+	Category string `bson:"category"`
+	ToUpdate string `bson:"toUpdate"`
 }
