@@ -29,7 +29,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "사업체 ID",
-                        "name": "Business-Id",
+                        "name": "business_id",
                         "in": "header",
                         "required": true
                     },
@@ -66,7 +66,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "사업체 ID",
-                        "name": "Business-Id",
+                        "name": "business_id",
                         "in": "header",
                         "required": true
                     },
@@ -102,22 +102,22 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "User input name",
-                        "name": "id",
+                        "description": "name",
+                        "name": "name",
                         "in": "query",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "User input sort할 컬럼이름",
-                        "name": "id",
+                        "description": "sort할 컬럼이름",
+                        "name": "sort",
                         "in": "query",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "User input order= 1은 오름찬순 그 외 내림차순 ",
-                        "name": "id",
+                        "description": "order= 1은 오름찬순 그 외 내림차순 ",
+                        "name": "order",
                         "in": "query",
                         "required": true
                     }
@@ -144,7 +144,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "가게 이름",
+                        "description": "가게 사업체 id",
                         "name": "id",
                         "in": "query",
                         "required": true
@@ -152,7 +152,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "메뉴 이름",
-                        "name": "id",
+                        "name": "name",
                         "in": "query",
                         "required": true
                     }
@@ -206,7 +206,7 @@ const docTemplate = `{
                 "summary": "call UpdateState, return ok by json.",
                 "parameters": [
                     {
-                        "description": "주문자 번호, 상태 ",
+                        "description": "주문 번호, 상태 ",
                         "name": "input",
                         "in": "body",
                         "required": true,
@@ -264,7 +264,7 @@ const docTemplate = `{
                 "summary": "call MakeOrder, return ok by json.",
                 "parameters": [
                     {
-                        "description": "User input 주문자 이름, 주문 가게 이름, 메뉴 배열형태만 입력 ]",
+                        "description": "주문자 이름, 주문 가게 이름, 메뉴 배열형태만 입력 ]",
                         "name": "input",
                         "in": "body",
                         "required": true,
@@ -313,7 +313,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/order/review": {
+        "/review": {
             "post": {
                 "consumes": [
                     "application/json"

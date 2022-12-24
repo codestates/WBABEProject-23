@@ -25,7 +25,7 @@ type UpdateOrderStateInput struct {
 // @name MakeOrder
 // @Accept  json
 // @Produce  json
-// @Param input body model.Order true "User input 주문자 이름, 주문 가게 이름, 메뉴 배열형태만 입력 ]"
+// @Param input body model.Order true "주문자 이름, 주문 가게 이름, 메뉴 배열형태만 입력 ]"
 // @Router /order/make [POST]
 // @Success 200 {object} Controller
 func (p *Controller) MakeOrder(c *gin.Context) {
@@ -109,7 +109,7 @@ func (p *Controller) AdminListOrderController(c *gin.Context) {
 // @name UpdateState
 // @Accept  json
 // @Produce  json
-// @Param input body UpdateOrderStateInput true "주문자 번호, 상태 "
+// @Param input body UpdateOrderStateInput true "주문 번호, 상태 "
 // @Router /order/admin/update [PATCH]
 // @Success 200 {object} Controller
 func (p *Controller) UpdateState(c *gin.Context) {
@@ -143,7 +143,7 @@ type ReviewInput struct {
 // @Accept  json
 // @Produce  json
 // @Param input body ReviewInput true "리뷰"
-// @Router /order/review [POST]
+// @Router /review [POST]
 // @Success 200 {object} Controller
 func (p *Controller) MakeReview(c *gin.Context) {
 	var input ReviewInput
