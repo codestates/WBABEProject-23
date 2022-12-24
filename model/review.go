@@ -21,7 +21,7 @@ type Review struct {
 }
 
 func (m *Model) WriteReview(review Review) int {
-	orderFilter := bson.M{"_id": review.OrderID, "orderer": review.Orderer}
+	orderFilter := bson.M{"_id": review.OrderID, "orderer": review.Orderer, "state": DeliverComplete}
 	orderProjection := bson.M{"menu": bson.M{"$elemMatch": bson.M{"menuname": review.MenuName, "isreviewed": false}}}
 	orderFindOption := options.FindOne().SetProjection(orderProjection)
 	isIn := m.colOrder.FindOne(context.TODO(), orderFilter, orderFindOption)
