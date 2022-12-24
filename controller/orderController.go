@@ -9,23 +9,13 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type ModifyOrderInput struct {
-	OrderID string          `bson:"orderid"`
-	Menu    []model.MenuNum `bson:"menu"`
-}
-
-type UpdateOrderStateInput struct {
-	OrderId string `bson:"orderid:`
-	State   int    `bson:"state"`
-}
-
 // MakeOrder godoc
 // @Summary call MakeOrder, return ok by json.
 // @주문.
 // @name MakeOrder
 // @Accept  json
 // @Produce  json
-// @Param input body model.Order true "주문자 이름, 주문 가게 이름, 메뉴 배열형태만 입력 ]"
+// @Param input body MakeOrderInput true "주문자 이름, 주문 가게 이름, 메뉴 배열형태만 입력 ]"
 // @Router /order/make [POST]
 // @Success 200 {object} Controller
 func (p *Controller) MakeOrder(c *gin.Context) {
@@ -43,6 +33,15 @@ func (p *Controller) MakeOrder(c *gin.Context) {
 	order.State = model.Receipting
 	p.md.MakeOrder(order)
 	c.JSON(200, gin.H{"msg": "ok"})
+}
+
+type MakeOrderInput struct {
+	Orderer      string `bson:"orderer"`
+	BusinessName string `bson:"businessName"`
+	Menu         []struct {
+		MenuName string `bson:"menuName"`
+		Number   int    `bson:"number"`
+	} `bson:"menu"`
 }
 
 // ListOrder godoc
@@ -67,7 +66,7 @@ func (p *Controller) ListOrder(c *gin.Context) {
 // @name ModifyOrder
 // @Accept  json
 // @Produce  json
-// @Param input body ModifyOrderInput true "수정할 주문 번호, 변경한 주문 메뉴 [{메뉴이름, 수량}]"
+// @Param input body ModifyOrderSwaggerInput true "수정할 주문 번호, 변경한 주문 메뉴 [{메뉴이름, 수량}]"
 // @Router /order/modify [PATCH]
 // @Success 200 {object} Controller
 func (p *Controller) ModifyOrder(c *gin.Context) {
@@ -85,7 +84,19 @@ func (p *Controller) ModifyOrder(c *gin.Context) {
 	} else {
 		c.JSON(200, gin.H{"msg": "update request failed"})
 	}
+}
 
+type ModifyOrderInput struct {
+	OrderID string          `bson:"orderid"`
+	Menu    []model.MenuNum `bson:"menu"`
+}
+
+type ModifyOrderSwaggerInput struct {
+	OrderID string `bson:"orderid"`
+	Menu    []struct {
+		MenuName string `bson:"menuname"`
+		Number   int    `bson:"number"`
+	} `bson:"menu"`
 }
 
 // AdminListOrderController godoc
@@ -109,11 +120,11 @@ func (p *Controller) AdminListOrderController(c *gin.Context) {
 // @name UpdateState
 // @Accept  json
 // @Produce  json
-// @Param input body UpdateOrderStateInput true "주문 번호, 상태 "
+// @Param input body UpdateStateInput true "주문 번호, 상태 "
 // @Router /order/admin/update [PATCH]
 // @Success 200 {object} Controller
 func (p *Controller) UpdateState(c *gin.Context) {
-	var input UpdateOrderStateInput
+	var input UpdateStateInput
 	c.ShouldBind(&input)
 	orderId, err := primitive.ObjectIDFromHex(input.OrderId)
 	if err != nil {
@@ -127,13 +138,9 @@ func (p *Controller) UpdateState(c *gin.Context) {
 	}
 }
 
-type ReviewInput struct {
-	OrderID    string  `bson:"orderid`
-	BusinessID string  `bson:"businessid`
-	Orderer    string  `bson:"orderer"`
-	MenuName   string  `bson:"menuname"`
-	Content    string  `bson:"content"`
-	Score      float32 `bson:"score"`
+type UpdateStateInput struct {
+	OrderId string `bson:"orderid:`
+	State   int    `bson:"state"`
 }
 
 // MakeReview godoc
@@ -171,4 +178,13 @@ func (p *Controller) MakeReview(c *gin.Context) {
 		return
 	}
 	c.JSON(200, gin.H{"msg": "ok"})
+}
+
+type ReviewInput struct {
+	OrderID    string  `bson:"orderid`
+	BusinessID string  `bson:"businessid`
+	Orderer    string  `bson:"orderer"`
+	MenuName   string  `bson:"menuname"`
+	Content    string  `bson:"content"`
+	Score      float32 `bson:"score"`
 }

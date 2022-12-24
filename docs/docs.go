@@ -211,7 +211,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controller.UpdateOrderStateInput"
+                            "$ref": "#/definitions/controller.UpdateStateInput"
                         }
                     }
                 ],
@@ -269,7 +269,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.Order"
+                            "$ref": "#/definitions/controller.MakeOrderInput"
                         }
                     }
                 ],
@@ -299,7 +299,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controller.ModifyOrderInput"
+                            "$ref": "#/definitions/controller.ModifyOrderSwaggerInput"
                         }
                     }
                 ],
@@ -348,6 +348,31 @@ const docTemplate = `{
         "controller.Controller": {
             "type": "object"
         },
+        "controller.MakeOrderInput": {
+            "type": "object",
+            "properties": {
+                "businessName": {
+                    "type": "string"
+                },
+                "menu": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "menuName": {
+                                "type": "string"
+                            },
+                            "number": {
+                                "type": "integer"
+                            }
+                        }
+                    }
+                },
+                "orderer": {
+                    "type": "string"
+                }
+            }
+        },
         "controller.ModifyMenuInput": {
             "type": "object",
             "properties": {
@@ -371,13 +396,21 @@ const docTemplate = `{
                 }
             }
         },
-        "controller.ModifyOrderInput": {
+        "controller.ModifyOrderSwaggerInput": {
             "type": "object",
             "properties": {
                 "menu": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/model.MenuNum"
+                        "type": "object",
+                        "properties": {
+                            "menuName": {
+                                "type": "string"
+                            },
+                            "number": {
+                                "type": "integer"
+                            }
+                        }
                     }
                 },
                 "orderID": {
@@ -425,53 +458,10 @@ const docTemplate = `{
                 }
             }
         },
-        "controller.UpdateOrderStateInput": {
+        "controller.UpdateStateInput": {
             "type": "object",
             "properties": {
                 "orderId": {
-                    "type": "string"
-                },
-                "state": {
-                    "type": "integer"
-                }
-            }
-        },
-        "model.MenuNum": {
-            "type": "object",
-            "properties": {
-                "isReviewed": {
-                    "type": "boolean"
-                },
-                "menuName": {
-                    "type": "string"
-                },
-                "number": {
-                    "type": "integer"
-                }
-            }
-        },
-        "model.Order": {
-            "type": "object",
-            "properties": {
-                "businessName": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "menu": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.MenuNum"
-                    }
-                },
-                "orderID": {
-                    "type": "integer"
-                },
-                "orderer": {
                     "type": "string"
                 },
                 "state": {

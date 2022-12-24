@@ -1,6 +1,22 @@
 definitions:
   controller.Controller:
     type: object
+  controller.MakeOrderInput:
+    properties:
+      businessName:
+        type: string
+      menu:
+        items:
+          properties:
+            menuName:
+              type: string
+            number:
+              type: integer
+          type: object
+        type: array
+      orderer:
+        type: string
+    type: object
   controller.ModifyMenuInput:
     properties:
       category:
@@ -16,11 +32,16 @@ definitions:
       toUpdate:
         type: string
     type: object
-  controller.ModifyOrderInput:
+  controller.ModifyOrderSwaggerInput:
     properties:
       menu:
         items:
-          $ref: '#/definitions/model.MenuNum'
+          properties:
+            menuName:
+              type: string
+            number:
+              type: integer
+          type: object
         type: array
       orderID:
         type: string
@@ -51,37 +72,9 @@ definitions:
       score:
         type: number
     type: object
-  controller.UpdateOrderStateInput:
+  controller.UpdateStateInput:
     properties:
       orderId:
-        type: string
-      state:
-        type: integer
-    type: object
-  model.MenuNum:
-    properties:
-      isReviewed:
-        type: boolean
-      menuName:
-        type: string
-      number:
-        type: integer
-    type: object
-  model.Order:
-    properties:
-      businessName:
-        type: string
-      createdAt:
-        type: string
-      id:
-        type: string
-      menu:
-        items:
-          $ref: '#/definitions/model.MenuNum'
-        type: array
-      orderID:
-        type: integer
-      orderer:
         type: string
       state:
         type: integer
@@ -216,7 +209,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/controller.UpdateOrderStateInput'
+          $ref: '#/definitions/controller.UpdateStateInput'
       produces:
       - application/json
       responses:
@@ -253,7 +246,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/model.Order'
+          $ref: '#/definitions/controller.MakeOrderInput'
       produces:
       - application/json
       responses:
@@ -272,7 +265,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/controller.ModifyOrderInput'
+          $ref: '#/definitions/controller.ModifyOrderSwaggerInput'
       produces:
       - application/json
       responses:

@@ -4,3 +4,22 @@
 {"level":"INFO","time":"2022-12-24T22:52:07.460+0900","caller":"logger/logger.go:62","msg":"info","-":"timeout of 5 seconds."}
 {"level":"INFO","time":"2022-12-24T22:52:07.460+0900","caller":"logger/logger.go:62","msg":"info","-":"Server exiting"}
 {"level":"ERROR","time":"2022-12-24T22:52:07.460+0900","caller":"logger/logger.go:80","msg":"error","-":"http: Server closed"}
+{"level":"DEBUG","time":"2022-12-24T23:51:32.663+0900","caller":"logger/logger.go:53","msg":"debug","-":"ready server.... "}
+{"level":"INFO","time":"2022-12-24T23:51:32.670+0900","caller":"logger/logger.go:62","msg":"info","-":"start server"}
+{"level":"INFO","time":"2022-12-24T23:51:35.390+0900","caller":"logger/logger.go:113","msg":"/swagger/index.html","status":200,"method":"GET","path":"/swagger/index.html","query":"","ip":"127.0.0.1","user-agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36","errors":"","cost":0.000525}
+{"level":"INFO","time":"2022-12-24T23:51:35.413+0900","caller":"logger/logger.go:113","msg":"/swagger/swagger-ui.css","status":200,"method":"GET","path":"/swagger/swagger-ui.css","query":"","ip":"127.0.0.1","user-agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36","errors":"","cost":0.000218834}
+{"level":"INFO","time":"2022-12-24T23:51:35.413+0900","caller":"logger/logger.go:113","msg":"/swagger/swagger-ui-standalone-preset.js","status":200,"method":"GET","path":"/swagger/swagger-ui-standalone-preset.js","query":"","ip":"127.0.0.1","user-agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36","errors":"","cost":0.000391666}
+{"level":"INFO","time":"2022-12-24T23:51:35.416+0900","caller":"logger/logger.go:113","msg":"/swagger/swagger-ui-bundle.js","status":200,"method":"GET","path":"/swagger/swagger-ui-bundle.js","query":"","ip":"127.0.0.1","user-agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36","errors":"","cost":0.00466925}
+{"level":"INFO","time":"2022-12-24T23:51:35.559+0900","caller":"logger/logger.go:113","msg":"/swagger/favicon-32x32.png","status":200,"method":"GET","path":"/swagger/favicon-32x32.png","query":"","ip":"127.0.0.1","user-agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36","errors":"","cost":0.000050583}
+{"level":"INFO","time":"2022-12-24T23:51:35.574+0900","caller":"logger/logger.go:113","msg":"/swagger/doc.json","status":200,"method":"GET","path":"/swagger/doc.json","query":"","ip":"127.0.0.1","user-agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36","errors":"","cost":0.000288459}
+{"level":"INFO","time":"2022-12-24T23:51:35.619+0900","caller":"logger/logger.go:113","msg":"/swagger/favicon-32x32.png","status":304,"method":"GET","path":"/swagger/favicon-32x32.png","query":"","ip":"127.0.0.1","user-agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36","errors":"","cost":0.000035291}
+{"level":"WARN","time":"2022-12-24T23:51:39.604+0900","caller":"logger/logger.go:71","msg":"warn","-":"Shutdown Server ..."}
+{"level":"INFO","time":"2022-12-24T23:51:40.605+0900","caller":"logger/logger.go:62","msg":"info","-":"timeout of 1 seconds."}
+{"level":"INFO","time":"2022-12-24T23:51:40.606+0900","caller":"logger/logger.go:62","msg":"info","-":"Server exiting"}
+{"level":"ERROR","time":"2022-12-24T23:51:40.606+0900","caller":"logger/logger.go:80","msg":"error","-":"http: Server closed"}
+{"level":"DEBUG","time":"2022-12-24T23:57:45.167+0900","caller":"logger/logger.go:53","msg":"debug","-":"ready server.... "}
+{"level":"INFO","time":"2022-12-24T23:57:45.187+0900","caller":"logger/logger.go:62","msg":"info","-":"start server"}
+{"level":"DEBUG","time":"2022-12-24T23:58:40.816+0900","caller":"logger/logger.go:53","msg":"debug","-":"ready server.... "}
+{"level":"INFO","time":"2022-12-24T23:58:40.827+0900","caller":"logger/logger.go:62","msg":"info","-":"start server"}
+{"level":"DEBUG","time":"2022-12-24T23:59:26.327+0900","caller":"logger/logger.go:53","msg":"debug","-":"ready server.... "}
+{"level":"INFO","time":"2022-12-24T23:59:26.339+0900","caller":"logger/logger.go:62","msg":"info","-":"start server"}
