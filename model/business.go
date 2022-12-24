@@ -139,27 +139,37 @@ func (m *Model) ListMenu(toList string, sortBy string, sortOrder int) []Menu {
 	return menu
 }
 
-// func (m *Model) ReadMenuReview(toRead string, menuName string) map[string]interface{} {
-// 	var result Business
-// 	filter := bson.M{"name": toRead}
-// 	option := options.FindOne().SetProjection(bson.M{"menu": 1, "review": 1})
-// 	if err := m.colBusiness.FindOne(context.TODO(), filter, option).Decode(&result); err != mongo.ErrNoDocuments {
-// 		fmt.Println("no document")
-// 		return map[string]interface{}{}
-// 	} else if err != nil {
-// 		fmt.Println(err)
-// 		panic(err)
-// 	}
-// 	var score float32
-// 	for _, res := range result.Menu {
-// 		if res.Name == menuName {
-// 			score = res.Score
-// 			break
-// 		}
-// 	}
-// 	val := map[string]interface{}{
-// 		"score":   score,
-// 		"reviews": result.Review,
-// 	}
-// 	return val
-// }
+func (m *Model) ReadMenuReview(toRead primitive.ObjectID, menuName string) map[string]interface{} {
+	var result Business
+	option := options.FindOne().SetProjection(bson.M{"menu": 1})
+	if err := m.colBusiness.FindOne(context.TODO(), bson.M{"_id": toRead}, option).Decode(&result); err == mongo.ErrNoDocuments {
+		fmt.Println("no document")
+		return map[string]interface{}{}
+	} else if err != nil {
+		fmt.Println(err)
+		panic(err)
+	}
+	var score float32
+	for _, res := range result.Menu {
+		if res.Name == menuName {
+			score = res.Score
+			break
+		}
+	}
+
+	filter := bson.M{"businessid": toRead, "menuname": menuName}
+	cursor, err := m.colReview.Find(context.TODO(), filter)
+	if err != nil {
+		panic(err)
+	}
+	defer cursor.Close(context.TODO())
+	var review []Review
+	if err = cursor.All(context.TODO(), &review); err != nil {
+		panic(err)
+	}
+	val := map[string]interface{}{
+		"score":  score,
+		"review": review,
+	}
+	return val
+}

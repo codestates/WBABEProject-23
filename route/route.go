@@ -71,7 +71,7 @@ func (p *Router) Index() *gin.Engine {
 	menuService := e.Group("/menu", liteAuth())
 	{
 		menuService.GET("/list", p.ct.MenuList)
-		// menuService.GET("/list/:name", p.ct.MenuReadReview)
+		menuService.GET("/list/review", p.ct.MenuReadReview)
 	}
 	order := e.Group("/order", liteAuth())
 	{
