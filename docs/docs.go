@@ -39,7 +39,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.Menu"
+                            "$ref": "#/definitions/controller.ModifyMenuInput"
                         }
                     }
                 ],
@@ -348,6 +348,29 @@ const docTemplate = `{
         "controller.Controller": {
             "type": "object"
         },
+        "controller.ModifyMenuInput": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "isDeleted": {
+                    "type": "boolean"
+                },
+                "origin": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "integer"
+                },
+                "state": {
+                    "type": "integer"
+                },
+                "toUpdate": {
+                    "type": "string"
+                }
+            }
+        },
         "controller.ModifyOrderInput": {
             "type": "object",
             "properties": {
@@ -407,32 +430,6 @@ const docTemplate = `{
             "properties": {
                 "orderId": {
                     "type": "string"
-                },
-                "state": {
-                    "type": "integer"
-                }
-            }
-        },
-        "model.Menu": {
-            "type": "object",
-            "properties": {
-                "category": {
-                    "type": "string"
-                },
-                "isDeleted": {
-                    "type": "boolean"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "origin": {
-                    "type": "string"
-                },
-                "price": {
-                    "type": "integer"
-                },
-                "score": {
-                    "type": "number"
                 },
                 "state": {
                     "type": "integer"

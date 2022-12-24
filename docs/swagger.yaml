@@ -1,6 +1,21 @@
 definitions:
   controller.Controller:
     type: object
+  controller.ModifyMenuInput:
+    properties:
+      category:
+        type: string
+      isDeleted:
+        type: boolean
+      origin:
+        type: string
+      price:
+        type: integer
+      state:
+        type: integer
+      toUpdate:
+        type: string
+    type: object
   controller.ModifyOrderInput:
     properties:
       menu:
@@ -40,23 +55,6 @@ definitions:
     properties:
       orderId:
         type: string
-      state:
-        type: integer
-    type: object
-  model.Menu:
-    properties:
-      category:
-        type: string
-      isDeleted:
-        type: boolean
-      name:
-        type: string
-      origin:
-        type: string
-      price:
-        type: integer
-      score:
-        type: number
       state:
         type: integer
     type: object
@@ -106,7 +104,7 @@ paths:
         name: id
         required: true
         schema:
-          $ref: '#/definitions/model.Menu'
+          $ref: '#/definitions/controller.ModifyMenuInput'
       produces:
       - application/json
       responses:

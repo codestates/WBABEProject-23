@@ -32,7 +32,7 @@ func (p *Controller) NewMenu(c *gin.Context) {
 	c.JSON(200, gin.H{"msg": "ok"})
 }
 
-//swag input 용
+// swag input 용
 type NewMenuInput struct {
 	Name     string `bson:"name"`
 	Price    int    `bson:"price"`
@@ -47,7 +47,7 @@ type NewMenuInput struct {
 // @Accept  json
 // @Produce  json
 // @Param business_id header string true "사업체 ID"
-// @Param id body model.Menu true "User input 바꿀 메뉴 이름 toUpdate로 추가, 바꿀내용만 작성"
+// @Param id body ModifyMenuInput true "User input 바꿀 메뉴 이름 toUpdate로 추가, 바꿀내용만 작성"
 // @Router /menu/admin/modify [PATCH]
 // @Success 200 {object} Controller
 func (p *Controller) ModifyMenu(c *gin.Context) {
@@ -66,4 +66,13 @@ func (p *Controller) ModifyMenu(c *gin.Context) {
 	}
 	p.md.ModifyMenu(toUpdate, business, menu)
 	c.JSON(200, gin.H{"msg": "ok"})
+}
+
+type ModifyMenuInput struct {
+	State     int    `bson:"state"`
+	Price     int    `bson:"price"`
+	Origin    string `bson:"origin"`
+	IsDeleted bool   `bson:"is_deleted"`
+	Category  string `bson:"category"`
+	ToUpdate  string `bson:"toUpdate"`
 }
