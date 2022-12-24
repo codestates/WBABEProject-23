@@ -21,7 +21,7 @@ type Business struct {
 	Menu  []Menu             `bson:"menu"`
 }
 
-// menu status
+// menu state
 const (
 	Ready    = 1
 	NotReady = 2
@@ -66,7 +66,7 @@ func (m *Model) ModifyMenu(toUpdate string, business string, menu Menu) {
 		update["$set"].(bson.M)["menu.$.name"] = menu.Name
 	}
 	if menu.State != 0 {
-		update["$set"].(bson.M)["menu.$.status"] = menu.State
+		update["$set"].(bson.M)["menu.$.state"] = menu.State
 	}
 	if menu.Price != 0 {
 		update["$set"].(bson.M)["menu.$.price"] = menu.Price
