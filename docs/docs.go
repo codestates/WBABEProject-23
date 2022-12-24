@@ -379,9 +379,6 @@ const docTemplate = `{
                 "category": {
                     "type": "string"
                 },
-                "isDeleted": {
-                    "type": "boolean"
-                },
                 "origin": {
                     "type": "string"
                 },
