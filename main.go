@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	cf "lecture/WBABEProject-23/config"
 	"lecture/WBABEProject-23/controller"
 	"lecture/WBABEProject-23/logger"
@@ -21,6 +22,12 @@ var g errgroup.Group
 func main() {
 	config := cf.GetConfig("./config/config.toml")
 
+	if err := logger.InitLogger(config); err != nil {
+		fmt.Printf("init logger failed, err:%v\n", err)
+		return
+	}
+
+	logger.Debug("ready server....")
 	//model 모듈 선언
 	if mod, err := model.NewModel(config); err != nil {
 		panic(err)
@@ -45,7 +52,7 @@ func main() {
 		<-quit
 		logger.Warn("Shutdown Server ...")
 
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 		defer cancel()
 		if err := mapi.Shutdown(ctx); err != nil {
 			logger.Error("Server Shutdown:", err)
@@ -53,7 +60,7 @@ func main() {
 
 		select {
 		case <-ctx.Done():
-			logger.Info("timeout of 5 seconds.")
+			logger.Info("timeout of 1 seconds.")
 		}
 
 		logger.Info("Server exiting")

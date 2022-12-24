@@ -8,6 +8,8 @@ import (
 	"github.com/gin-gonic/gin"
 	swgFiles "github.com/swaggo/files"
 	ginSwg "github.com/swaggo/gin-swagger"
+
+	"lecture/WBABEProject-23/logger"
 )
 
 type Router struct {
@@ -54,10 +56,16 @@ func liteAuth() gin.HandlerFunc {
 }
 
 func (p *Router) Index() *gin.Engine {
+
+	// gin.SetMode(gin.ReleaseMode)
+	// gin.SetMode(gin.DebugMode)
+
 	e := gin.New()
-	e.Use(gin.Logger())
-	e.Use(gin.Recovery())
+	e.Use(logger.GinLogger())
+	e.Use(logger.GinRecovery(true))
 	e.Use(CORS())
+
+	logger.Info("start server")
 
 	e.GET("/swagger/:any", ginSwg.WrapHandler(swgFiles.Handler))
 	docs.SwaggerInfo.Host = "localhost:8080"
