@@ -241,6 +241,13 @@ const docTemplate = `{
                         "name": "name",
                         "in": "query",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "1은 현재 주문, 그 외 과거 주문",
+                        "name": "cur",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {

@@ -228,6 +228,11 @@ paths:
         name: name
         required: true
         type: string
+      - description: 1은 현재 주문, 그 외 과거 주문
+        in: query
+        name: cur
+        required: true
+        type: string
       produces:
       - application/json
       responses:

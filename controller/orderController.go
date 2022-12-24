@@ -51,11 +51,14 @@ type MakeOrderInput struct {
 // @Accept  json
 // @Produce  json
 // @Param name query string true "유저이름"
+// @Param cur query string true "1은 현재 주문, 그 외 과거 주문"
 // @Router /order/list [GET]
 // @Success 200 {object} Controller
 func (p *Controller) ListOrder(c *gin.Context) {
 	userName := c.Query("name")
-	result := p.md.ListOrder(userName)
+	cur := c.Query("cur")
+
+	result := p.md.ListOrder(userName, cur == "1")
 
 	c.JSON(200, gin.H{"msg": "ok", "list": result})
 }

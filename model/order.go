@@ -66,8 +66,13 @@ func (m *Model) MakeOrder(order Order) {
 	fmt.Println(result.InsertedID)
 }
 
-func (m *Model) ListOrder(userName string) []Order {
-	filter := bson.M{"orderer": userName}
+func (m *Model) ListOrder(userName string, cur bool) []Order {
+	var filter bson.M
+	if cur {
+		filter = bson.M{"orderer": userName, "state": bson.M{"$ne": DeliverComplete}}
+	} else {
+		filter = bson.M{"orderer": userName, "state": DeliverComplete}
+	}
 	option := options.Find().SetProjection(bson.M{"orderer": 1, "state": 1, "businessname": 1, "menu": 1, "createdat": 1})
 	cursor, err := m.colOrder.Find(context.TODO(), filter, option)
 	if err != nil {
