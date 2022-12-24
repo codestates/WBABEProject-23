@@ -3,6 +3,8 @@ package controller
 import (
 	"strconv"
 
+	"go.mongodb.org/mongo-driver/bson/primitive"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -36,8 +38,12 @@ func (p *Controller) MenuList(c *gin.Context) {
 }
 
 func (p *Controller) MenuReadReview(c *gin.Context) {
-	businessName := c.Query("name")
-	menuName := c.Param("name")
-	p.md.ReadMenuReview(businessName, menuName)
-	c.JSON(200, gin.H{"msg": "ok"})
+	businessName := c.Query("id")
+	menuName := c.Query("name")
+	objId, err := primitive.ObjectIDFromHex(businessName)
+	if err != nil {
+		panic(err)
+	}
+	result := p.md.ReadMenuReview(objId, menuName)
+	c.JSON(200, gin.H{"msg": "ok", "list": result})
 }

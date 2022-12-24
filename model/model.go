@@ -14,6 +14,7 @@ type Model struct {
 	colBusiness *mongo.Collection
 	colUser     *mongo.Collection
 	colOrder    *mongo.Collection
+	colReview   *mongo.Collection
 }
 
 func NewModel(config *config.Config) (*Model, error) {
@@ -35,6 +36,7 @@ func NewModel(config *config.Config) (*Model, error) {
 		r.colBusiness = db.Collection("business")
 		r.colUser = db.Collection("user")
 		r.colOrder = db.Collection("order")
+		r.colReview = db.Collection("review")
 	}
 	return r, nil
 }
