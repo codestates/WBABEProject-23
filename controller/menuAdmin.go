@@ -16,7 +16,7 @@ import (
 // @Accept  json
 // @Produce  json
 // @Param business_id header string true "사업체 ID"
-// @Param id body NewMenuInput true "User input"
+// @Param id body NewMenuInput true "메뉴 입력"
 // @Router /menu/admin/new [POST]
 // @Success 200 {object} Controller
 func (p *Controller) NewMenu(c *gin.Context) {
@@ -28,8 +28,14 @@ func (p *Controller) NewMenu(c *gin.Context) {
 	menu.State = 1
 	menu.IsDeleted = false
 	business := c.GetHeader("business_id")
-	p.md.CreateNewMenu(menu, business)
-	c.JSON(200, gin.H{"msg": "ok"})
+	result := p.md.CreateNewMenu(menu, business)
+	msg := [3]string{
+		"No document was found with the business id",
+		"Internl Error",
+		"ok",
+	}
+	statusCode := [3]int{400, 500, 200}
+	c.JSON(statusCode[result], gin.H{"msg": msg[result]})
 }
 
 // swag input 용

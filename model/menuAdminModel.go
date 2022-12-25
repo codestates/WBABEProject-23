@@ -3,6 +3,7 @@ package model
 import (
 	"context"
 	"fmt"
+	"lecture/WBABEProject-23/logger"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -10,7 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func (m *Model) CreateNewMenu(newMenu Menu, business string) {
+func (m *Model) CreateNewMenu(newMenu Menu, business string) int {
 	objId, err := primitive.ObjectIDFromHex(business)
 	if err != nil {
 		panic(err)
@@ -19,13 +20,14 @@ func (m *Model) CreateNewMenu(newMenu Menu, business string) {
 	update := bson.M{"$push": bson.M{"menu": newMenu}}
 	result, err := m.colBusiness.UpdateOne(context.TODO(), filter, update)
 	if err == mongo.ErrNoDocuments {
-		fmt.Println("No document was found with the business id")
-		return
+		logger.Warn("No document was found with the business id")
+		return 1
 	} else if err != nil {
-		fmt.Println(err)
-		panic(err)
+		logger.Error(err)
+		return 2
 	}
 	fmt.Println(result)
+	return 0
 }
 
 func (m *Model) ModifyMenu(toUpdate string, business string, menu Menu) {
