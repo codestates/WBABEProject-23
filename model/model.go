@@ -32,7 +32,7 @@ func NewModel(config *config.Config) (*Model, error) {
 	} else if err := r.client.Ping(context.Background(), nil); err != nil {
 		return nil, err
 	} else {
-		db := r.client.Database("WBA_online_ordering")
+		db := r.client.Database(fmt.Sprintf("%v", config.DB["admin"]["name"]))
 		r.colBusiness = db.Collection("business")
 		r.colUser = db.Collection("user")
 		r.colOrder = db.Collection("order")
