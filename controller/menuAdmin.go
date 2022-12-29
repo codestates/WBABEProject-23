@@ -34,6 +34,10 @@ func (p *Controller) NewMenu(c *gin.Context) {
 		"Internl Error",
 		"ok",
 	}
+
+	/* 
+	생성이 된 경우에는 일반적으로 201 created 리스폰스를 리턴합니다.
+	*/
 	statusCode := [3]int{400, 500, 200}
 	c.JSON(statusCode[result], gin.H{"msg": msg[result]})
 }

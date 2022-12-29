@@ -24,6 +24,10 @@ func (m *Model) ModifyOrder(orderID primitive.ObjectID, menu []MenuNum) bool {
 		addition = true
 	}
 	state := order.State
+	/* 
+	주문을 수정할 수 없는 상태를 const를 사용하니 가독성에 좋습니다. 좋은 코드네요.
+	Enum을 활용한다면 조금 더 용이할 수 있습니다. 참고 바랍니다.
+	*/
 	switch state {
 	case DeliverComplete, Delivering, ReceiptCancled, AdditionalReceiptCancled:
 		return false
