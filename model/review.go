@@ -20,6 +20,12 @@ type Review struct {
 	Score      float32            `bson:"score"`
 }
 
+/*
+1. WriteReview 보다는 CreateReview라는 네이밍이 적절해 보입니다. 특별한 케이스가 아닌이상 CRUD 기능에 대한 네이밍은 통일을 해주시는 것이 가독성이 좋습니다.
+
+2. 함수 내에서 많은 작업들을 처리하고 있습니다. 리뷰를 생성(작성)하는 것과 연관이 없는 로직들은 따로 함수로 뺴내어 분리해보는 것은 어떨까요? 이렇게 로직을 분리하다보면 공통적으로 사용하는 유틸 함수를 만들 수 있는 포인트가 되기도 하고, 재사용 또한 가능해집니다.
+
+*/
 func (m *Model) WriteReview(review Review) int {
 	orderFilter := bson.M{"_id": review.OrderID, "orderer": review.Orderer, "state": DeliverComplete}
 	orderProjection := bson.M{"menu": bson.M{"$elemMatch": bson.M{"menuname": review.MenuName, "isreviewed": false}}}
@@ -47,6 +53,9 @@ func (m *Model) WriteReview(review Review) int {
 		panic(err)
 	}
 	fmt.Println(orderUpdateResult)
+	/*
+	의미 없는 주석은 지워주시는 편이 좋습니다.
+	*/
 	//////////////////////////////////////////////////////////////////////////////////////
 	pipeline := []bson.M{
 		{
