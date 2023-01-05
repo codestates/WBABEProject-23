@@ -31,6 +31,7 @@ type Order struct {
 	State     int                `bson:"state"`
 	Menu      []MenuNum          `bson:"menu"`
 	CreatedAt time.Time          `bson:"created_at"`
+	UpdatedAt time.Time          `bson:"updated_at"`
 }
 
 type MenuNum struct {

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"lecture/WBABEProject-23/protocol"
 	"reflect"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -17,8 +18,7 @@ func (m *Model) UpdateOrder(orderID primitive.ObjectID, menu []MenuNum) *protoco
 	var order Order
 	err := m.colOrder.FindOne(context.TODO(), filter).Decode(&order)
 	if err != nil {
-		fmt.Println(err)
-		panic(err)
+		return protocol.Fail(err, protocol.InternalServerError)
 	}
 	addition := false
 	if reflect.DeepEqual(order.Menu, menu) {
@@ -33,7 +33,7 @@ func (m *Model) UpdateOrder(orderID primitive.ObjectID, menu []MenuNum) *protoco
 			return protocol.FailCustomMessage(nil, "The state is not updatable", protocol.BadRequest)
 		}
 	}
-	update := bson.M{"$set": bson.M{"menu": menu, "state": AdditionalReceipting}}
+	update := bson.M{"$set": bson.M{"menu": menu, "state": AdditionalReceipting, "updated_at": time.Now()}}
 	result, err := m.colOrder.UpdateOne(context.TODO(), filter, update)
 	if err != nil {
 		panic(err)

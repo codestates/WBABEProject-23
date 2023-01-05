@@ -6,6 +6,8 @@ import (
 	"lecture/WBABEProject-23/protocol"
 	"time"
 
+	"github.com/gin-gonic/gin/binding"
+
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -60,6 +62,7 @@ func (p *Controller) createOrderInputValidate(body *CreateOrderInput) (*model.Or
 	order.Orderer = body.Orderer
 	order.ID = primitive.NewObjectID()
 	order.CreatedAt = time.Now()
+	order.UpdatedAt = order.CreatedAt
 	order.State = model.Receipting
 	return order, nil
 }
@@ -101,7 +104,7 @@ func (p *Controller) ReadOrder(c *gin.Context) {
 // @Success 200 {object} Controller
 func (p *Controller) UpdateOrder(c *gin.Context) {
 	var input UpdateOrderInput
-	if err := c.ShouldBind(&input); err != nil {
+	if err := c.ShouldBindWith(&input, binding.JSON); err != nil {
 		protocol.Fail(err, protocol.BadRequest)
 		return
 	}
@@ -137,6 +140,6 @@ type UpdateOrderInput struct {
 	OrderID string `bson:"orderid"`
 	Menu    []struct {
 		MenuID string `bson:"menu_id"`
-		Number int    `bson:"number"`
+		Number int    `bson:"number" binding:"gte=1"`
 	} `bson:"menu"`
 }
