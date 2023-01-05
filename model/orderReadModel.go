@@ -3,6 +3,9 @@ package model
 import (
 	"context"
 	"fmt"
+	"lecture/WBABEProject-23/protocol"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -31,17 +34,16 @@ func (m *Model) ListOrder(userName string, cur bool) []Order {
 	return orders
 }
 
-func (m *Model) AdminListOrder(businessName string) []Order {
-	filter := bson.M{"businessname": businessName}
+func (m *Model) AdminListOrder(id primitive.ObjectID) *protocol.ApiResponse[any] {
+	filter := bson.M{"business_id": id}
 	cursor, err := m.colOrder.Find(context.TODO(), filter)
 	if err != nil {
-		fmt.Println(err)
-		panic(err)
+		return protocol.Fail(err, protocol.InternalServerError)
 	}
 	defer cursor.Close(context.TODO())
 	var order []Order
 	if err = cursor.All(context.TODO(), &order); err != nil {
-		panic(err)
+		return protocol.Fail(err, protocol.InternalServerError)
 	}
-	return order
+	return protocol.SuccessData(order, protocol.OK)
 }

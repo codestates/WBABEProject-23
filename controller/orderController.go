@@ -1,46 +1,80 @@
 package controller
 
 import (
+	"fmt"
 	"lecture/WBABEProject-23/model"
-	"net/http"
+	"lecture/WBABEProject-23/protocol"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// MakeOrder godoc
-// @Summary call MakeOrder, return ok by json.
+// CreateOrder godoc
+// @Summary call CreateOrder, return ok by json.
 // @주문.
-// @name MakeOrder
+// @name CreateOrder
 // @Accept  json
 // @Produce  json
-// @Param input body MakeOrderInput true "주문자 이름, 주문 가게 이름, 메뉴 배열형태만 입력 ]"
+// @Param input body CreateOrderInput true "주문자 이름,  메뉴 배열형태로 메뉴ID, 주문 수량 입력"
 // @Router /order/make [POST]
 // @Success 200 {object} Controller
-func (p *Controller) MakeOrder(c *gin.Context) {
-	loc, err := time.LoadLocation("Asia/Seoul")
-	if err != nil {
-		panic(err)
-	}
-	order := model.Order{}
-	if err := c.ShouldBind(&order); err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
+func (p *Controller) CreateOrder(c *gin.Context) {
+	// loc, err := time.LoadLocation("Asia/Seoul")
+	// if err != nil {
+	// 	protocol.Fail(err, protocol.BadRequest).Response(c)
+	// 	return
+	// }
+	var input = new(CreateOrderInput)
+	if err := c.ShouldBind(&input); err != nil {
+		protocol.Fail(err, protocol.BadRequest).Response(c)
 		return
 	}
-	order.Id = primitive.NewObjectID()
-	order.CreatedAt = time.Now().In(loc)
-	order.State = model.Receipting
-	p.md.MakeOrder(order)
-	c.JSON(200, gin.H{"msg": "ok"})
+	order, res := p.createOrderInputValidate(input)
+	if res != nil {
+		res.Response(c)
+		return
+	}
+	result := p.md.CreateOrder(order)
+	result.Response(c)
 }
 
-type MakeOrderInput struct {
-	Orderer      string `bson:"orderer"`
-	BusinessName string `bson:"businessName"`
-	Menu         []struct {
-		MenuName string `bson:"menuName"`
-		Number   int    `bson:"number"`
+func (p *Controller) createOrderInputValidate(body *CreateOrderInput) (*model.Order, *protocol.ApiResponse[any]) {
+	var order = new(model.Order)
+
+	for i, menu := range body.Menu {
+		t, err := primitive.ObjectIDFromHex(menu.MenuID)
+		order.Menu = append(order.Menu, model.MenuNum{t, menu.Number, false})
+		if err != nil {
+			return nil, protocol.Fail(err, protocol.BadRequest)
+		}
+		if r, e := p.md.CheckMenuID(order.Menu[i].MenuID); !r {
+			msg := fmt.Sprintf("No menu id with %v\n", menu.MenuID)
+			return nil, protocol.FailCustomMessage(e, msg, protocol.BadRequest)
+		}
+	}
+	var err error
+	order.BID, err = primitive.ObjectIDFromHex(body.BID)
+	if err != nil {
+		return nil, protocol.Fail(err, protocol.BadRequest)
+	}
+	if r, e := p.md.CheckBusinessID(order.BID); !r {
+		msg := fmt.Sprintf("No menu id with %v\n", body.BID)
+		return nil, protocol.FailCustomMessage(e, msg, protocol.BadRequest)
+	}
+	order.Orderer = body.Orderer
+	order.ID = primitive.NewObjectID()
+	order.CreatedAt = time.Now()
+	order.State = model.Receipting
+	return order, nil
+}
+
+type CreateOrderInput struct {
+	Orderer string `bson:"orderer"`
+	BID     string `bson:"business_id"`
+	Menu    []struct {
+		MenuID string `bson:"menu_id"`
+		Number int    `bson:"number"`
 	} `bson:"menu"`
 }
 
@@ -63,42 +97,54 @@ func (p *Controller) ListOrder(c *gin.Context) {
 	c.JSON(200, gin.H{"msg": "ok", "list": result})
 }
 
-// ModifyOrder godoc
-// @Summary call ModifyOrder, return ok by json.
+// UpdateOrder godoc
+// @Summary call UpdateOrder, return ok by json.
 // @주문자 - 주문 변경 서비스
-// @name ModifyOrder
+// @name UpdateOrder
 // @Accept  json
 // @Produce  json
-// @Param input body ModifyOrderSwaggerInput true "수정할 주문 번호, 변경한 주문 메뉴 [{메뉴이름, 수량}]"
+// @Param input body UpdateOrderInput true "수정할 주문 번호, 변경한 주문 메뉴 [{메뉴이름, 수량}]"
 // @Router /order/modify [PATCH]
 // @Success 200 {object} Controller
-func (p *Controller) ModifyOrder(c *gin.Context) {
-	var input ModifyOrderInput
+func (p *Controller) UpdateOrder(c *gin.Context) {
+	var input UpdateOrderInput
 	if err := c.ShouldBind(&input); err != nil {
-		panic(err)
+		protocol.Fail(err, protocol.BadRequest)
+		return
 	}
-	objID, err := primitive.ObjectIDFromHex(input.OrderID)
+	objID, menu, res := p.updateOrderInputValidate(input)
+	if res != nil {
+		res.Response(c)
+		return
+	}
+	result := p.md.UpdateOrder(objID, menu)
+	result.Response(c)
+}
+
+func (p *Controller) updateOrderInputValidate(input UpdateOrderInput) (orderID primitive.ObjectID, menu []model.MenuNum, res *protocol.ApiResponse[any]) {
+	orderID, err := primitive.ObjectIDFromHex(input.OrderID)
 	if err != nil {
-		panic(err)
+		return primitive.NilObjectID, nil, protocol.Fail(err, protocol.BadRequest)
 	}
-	result := p.md.ModifyOrder(objID, input.Menu)
-	if result {
-		c.JSON(200, gin.H{"msg": "update request success"})
-	} else {
-		c.JSON(200, gin.H{"msg": "update request failed"})
+	for _, m := range input.Menu {
+		id, err := primitive.ObjectIDFromHex(m.MenuID)
+		if err != nil {
+			return primitive.NilObjectID, nil, protocol.Fail(err, protocol.BadRequest)
+		}
+		menu = append(menu, model.MenuNum{
+			MenuID:     id,
+			Number:     m.Number,
+			IsReviewed: false,
+		})
 	}
+	return orderID, menu, nil
 }
 
-type ModifyOrderInput struct {
-	OrderID string          `bson:"orderid"`
-	Menu    []model.MenuNum `bson:"menu"`
-}
-
-type ModifyOrderSwaggerInput struct {
+type UpdateOrderInput struct {
 	OrderID string `bson:"orderid"`
 	Menu    []struct {
-		MenuName string `bson:"menuname"`
-		Number   int    `bson:"number"`
+		MenuID string `bson:"menu_id"`
+		Number int    `bson:"number"`
 	} `bson:"menu"`
 }
 
@@ -108,13 +154,25 @@ type ModifyOrderSwaggerInput struct {
 // @name AdminListOrderController
 // @Accept  json
 // @Produce  json
-// @Param businessname query string true "사업체 이름"
+// @Param id query string true "사업체 id"
 // @Router /order/admin/list [GET]
 // @Success 200 {object} Controller
 func (p *Controller) AdminListOrderController(c *gin.Context) {
-	businessName := c.Query("businessname")
-	result := p.md.AdminListOrder(businessName)
+	id := c.Query("id")
+	BID, res := p.adminListOrderInputValidate(id)
+	if res != nil {
+		res.Response(c)
+	}
+	result := p.md.AdminListOrder(BID)
 	c.JSON(200, gin.H{"msg": "ok", "list": result})
+}
+
+func (p *Controller) adminListOrderInputValidate(id string) (primitive.ObjectID, *protocol.ApiResponse[any]) {
+	BID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return primitive.NilObjectID, protocol.Fail(err, protocol.BadRequest)
+	}
+	return BID, nil
 }
 
 // UpdateState godoc
@@ -146,48 +204,56 @@ type UpdateStateInput struct {
 	State   int    `bson:"state"`
 }
 
-// MakeReview godoc
-// @Summary call MakeReview, return ok by json.
+// CreateReview godoc
+// @Summary call CreateReview, return ok by json.
 // @리뷰 작성하기
-// @name MakeReview
+// @name CreateReview
 // @Accept  json
 // @Produce  json
 // @Param input body ReviewInput true "리뷰"
 // @Router /review [POST]
 // @Success 200 {object} Controller
-func (p *Controller) MakeReview(c *gin.Context) {
+func (p *Controller) CreateReview(c *gin.Context) {
 	var input ReviewInput
 	err := c.ShouldBind(&input)
 	if err != nil {
-		panic(err)
-	}
-	var review model.Review
-	review.OrderID, err = primitive.ObjectIDFromHex(input.OrderID)
-	if err != nil {
-		panic(err)
-	}
-	review.BusinessID, err = primitive.ObjectIDFromHex(input.BusinessID)
-	if err != nil {
-		panic(err)
-	}
-	review.Orderer = input.Orderer
-	review.MenuName = input.MenuName
-	review.Content = input.Content
-	review.Score = input.Score
-
-	result := p.md.WriteReview(review)
-	if result == 0 {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"msg": "no matching order"})
+		protocol.Fail(err, protocol.BadRequest).Response(c)
 		return
 	}
-	c.JSON(200, gin.H{"msg": "ok"})
+	review, res := p.createReviewInputValidate(input)
+	if res != nil {
+		res.Response(c)
+		return
+	}
+	result := p.md.CreateReview(review)
+	result.Response(c)
+}
+
+func (p *Controller) createReviewInputValidate(body ReviewInput) (*model.Review, *protocol.ApiResponse[any]) {
+	review := new(model.Review)
+	var err error
+	review.OrderID, err = primitive.ObjectIDFromHex(body.OrderID)
+	if err != nil {
+		return nil, protocol.Fail(err, protocol.BadRequest)
+	}
+	if r, e := p.md.CheckOrderByID(review.OrderID); !r {
+		return nil, protocol.FailCustomMessage(e, "No matching order", protocol.BadRequest)
+	}
+	review.MenuID, err = primitive.ObjectIDFromHex(body.MenuID)
+	if err != nil {
+		protocol.Fail(err, protocol.BadRequest)
+	}
+
+	review.Orderer = body.Orderer
+	review.Content = body.Content
+	review.Score = body.Score
+	return review, nil
 }
 
 type ReviewInput struct {
-	OrderID    string  `bson:"orderid`
-	BusinessID string  `bson:"businessid`
-	Orderer    string  `bson:"orderer"`
-	MenuName   string  `bson:"menuname"`
-	Content    string  `bson:"content"`
-	Score      float32 `bson:"score"`
+	OrderID string  `bson:"order_id" json:"order_id"`
+	MenuID  string  `bson:"menu_id" json:"menu_id"`
+	Orderer string  `bson:"orderer"`
+	Content string  `bson:"content"`
+	Score   float32 `bson:"score"`
 }

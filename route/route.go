@@ -72,27 +72,27 @@ func (p *Router) Index() *gin.Engine {
 
 	menuAdmin := e.Group("/menu/admin", liteAuth())
 	{
-		menuAdmin.POST("/new", p.ct.NewMenu)
-		menuAdmin.PATCH("modify", p.ct.ModifyMenu)
+		menuAdmin.POST("/new", p.ct.CreateMenuController)
+		menuAdmin.PATCH("modify", p.ct.UpdateMenu)
 
 	}
 	menuService := e.Group("/menu", liteAuth())
 	{
-		menuService.GET("/list", p.ct.MenuList)
-		menuService.GET("/list/review", p.ct.MenuReadReview)
+		menuService.GET("/list", p.ct.ListMenuControl)
+		menuService.GET("/list/review", p.ct.ReadReviewControl)
 	}
 	order := e.Group("/order", liteAuth())
 	{
-		order.POST("/make", p.ct.MakeOrder) //주문
+		order.POST("/make", p.ct.CreateOrder) //주문
 
 		order.GET("/list", p.ct.ListOrder)                      //주문 조회
 		order.GET("/admin/list", p.ct.AdminListOrderController) //주문 상태 조회
-		order.PATCH("/modify", p.ct.ModifyOrder)                //주문 변경
+		order.PATCH("/modify", p.ct.UpdateOrder)                //주문 변경
 		order.PATCH("/admin/update", p.ct.UpdateState)          //주문 상태 변경
 	}
 	review := e.Group("review", liteAuth())
 	{
-		review.POST("", p.ct.MakeReview) //리뷰 작성
+		review.POST("", p.ct.CreateReview) //리뷰 작성
 	}
 
 	return e
