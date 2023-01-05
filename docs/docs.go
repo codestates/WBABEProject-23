@@ -24,22 +24,15 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "call ModifyMenu, return ok by json.",
+                "summary": "call UpdateMenu, return ok by json.",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "사업체 ID",
-                        "name": "business_id",
-                        "in": "header",
-                        "required": true
-                    },
                     {
                         "description": "User input 바꿀 메뉴 이름 toUpdate로 추가, 바꿀내용만 작성",
                         "name": "id",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controller.ModifyMenuInput"
+                            "$ref": "#/definitions/controller.UpdateMenuInput"
                         }
                     }
                 ],
@@ -64,19 +57,12 @@ const docTemplate = `{
                 "summary": "call NewMenu, return ok by json.",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "사업체 ID",
-                        "name": "business_id",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "description": "User input",
+                        "description": "메뉴 입력",
                         "name": "id",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controller.NewMenuInput"
+                            "$ref": "#/definitions/controller.CreateMenuInput"
                         }
                     }
                 ],
@@ -98,12 +84,12 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "call MenuList, return ok by json.",
+                "summary": "call ListMenu, return ok by json.",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "name",
-                        "name": "name",
+                        "description": "id",
+                        "name": "id",
                         "in": "query",
                         "required": true
                     },
@@ -140,19 +126,12 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "call MenuReadReview, return ok by json.",
+                "summary": "call ReadReviewControl, return ok by json.",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "가게 사업체 id",
+                        "description": "메뉴 id",
                         "name": "id",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "메뉴 이름",
-                        "name": "name",
                         "in": "query",
                         "required": true
                     }
@@ -179,8 +158,8 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "사업체 이름",
-                        "name": "businessname",
+                        "description": "사업체 id",
+                        "name": "id",
                         "in": "query",
                         "required": true
                     }
@@ -268,15 +247,15 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "call MakeOrder, return ok by json.",
+                "summary": "call CreateOrder, return ok by json.",
                 "parameters": [
                     {
-                        "description": "주문자 이름, 주문 가게 이름, 메뉴 배열형태만 입력 ]",
+                        "description": "주문자 이름,  메뉴 배열형태로 메뉴ID, 주문 수량 입력",
                         "name": "input",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controller.MakeOrderInput"
+                            "$ref": "#/definitions/controller.CreateOrderInput"
                         }
                     }
                 ],
@@ -298,7 +277,7 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "call ModifyOrder, return ok by json.",
+                "summary": "call UpdateOrder, return ok by json.",
                 "parameters": [
                     {
                         "description": "수정할 주문 번호, 변경한 주문 메뉴 [{메뉴이름, 수량}]",
@@ -306,7 +285,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controller.ModifyOrderSwaggerInput"
+                            "$ref": "#/definitions/controller.UpdateOrderInput"
                         }
                     }
                 ],
@@ -328,7 +307,7 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "call MakeReview, return ok by json.",
+                "summary": "call CreateReview, return ok by json.",
                 "parameters": [
                     {
                         "description": "리뷰",
@@ -355,76 +334,12 @@ const docTemplate = `{
         "controller.Controller": {
             "type": "object"
         },
-        "controller.MakeOrderInput": {
+        "controller.CreateMenuInput": {
             "type": "object",
             "properties": {
-                "businessName": {
+                "businessID": {
                     "type": "string"
                 },
-                "menu": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "menuName": {
-                                "type": "string"
-                            },
-                            "number": {
-                                "type": "integer"
-                            }
-                        }
-                    }
-                },
-                "orderer": {
-                    "type": "string"
-                }
-            }
-        },
-        "controller.ModifyMenuInput": {
-            "type": "object",
-            "properties": {
-                "category": {
-                    "type": "string"
-                },
-                "origin": {
-                    "type": "string"
-                },
-                "price": {
-                    "type": "integer"
-                },
-                "state": {
-                    "type": "integer"
-                },
-                "toUpdate": {
-                    "type": "string"
-                }
-            }
-        },
-        "controller.ModifyOrderSwaggerInput": {
-            "type": "object",
-            "properties": {
-                "menu": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "menuName": {
-                                "type": "string"
-                            },
-                            "number": {
-                                "type": "integer"
-                            }
-                        }
-                    }
-                },
-                "orderID": {
-                    "type": "string"
-                }
-            }
-        },
-        "controller.NewMenuInput": {
-            "type": "object",
-            "properties": {
                 "category": {
                     "type": "string"
                 },
@@ -439,19 +354,41 @@ const docTemplate = `{
                 }
             }
         },
+        "controller.CreateOrderInput": {
+            "type": "object",
+            "properties": {
+                "bid": {
+                    "type": "string"
+                },
+                "menu": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "menuID": {
+                                "type": "string"
+                            },
+                            "number": {
+                                "type": "integer"
+                            }
+                        }
+                    }
+                },
+                "orderer": {
+                    "type": "string"
+                }
+            }
+        },
         "controller.ReviewInput": {
             "type": "object",
             "properties": {
-                "businessID": {
-                    "type": "string"
-                },
                 "content": {
                     "type": "string"
                 },
-                "menuName": {
+                "menu_id": {
                     "type": "string"
                 },
-                "orderID": {
+                "order_id": {
                     "type": "string"
                 },
                 "orderer": {
@@ -459,6 +396,57 @@ const docTemplate = `{
                 },
                 "score": {
                     "type": "number"
+                }
+            }
+        },
+        "controller.UpdateMenuInput": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isDeleted": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "origin": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "integer"
+                },
+                "state": {
+                    "type": "integer"
+                }
+            }
+        },
+        "controller.UpdateOrderInput": {
+            "type": "object",
+            "properties": {
+                "menu": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "menuID": {
+                                "type": "string"
+                            },
+                            "number": {
+                                "type": "integer"
+                            }
+                        }
+                    }
+                },
+                "orderID": {
+                    "type": "string"
                 }
             }
         },

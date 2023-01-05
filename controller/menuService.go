@@ -1,59 +1,85 @@
 package controller
 
 import (
-	"strconv"
+	"lecture/WBABEProject-23/protocol"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"github.com/gin-gonic/gin"
 )
 
-// MenuList godoc
-// @Summary call MenuList, return ok by json.
+// ListMenu godoc
+// @Summary call ListMenu, return ok by json.
 // @메뉴 조회
-// @name MenuList
+// @name ListMenu
 // @Accept  json
 // @Produce  json
-// @Param name query string true "name"
+// @Param id query string true "id"
 // @Param sort query string true "sort할 컬럼이름"
 // @Param order query string true "order= 1은 오름찬순 그 외 내림차순 "
 // @Router /menu/list [GET]
 // @Success 200 {object} Controller
-func (p *Controller) MenuList(c *gin.Context) {
-	businessName := c.Query("name")
+func (p *Controller) ListMenuControl(c *gin.Context) {
+	id := c.Query("id")
 	sortBy := c.Query("sort")
 	sortOrder := c.Query("order")
-	var order int
-	var err error
-	if sortOrder == "" {
-		order = 1
-	} else {
-		order, err = strconv.Atoi(sortOrder)
-		if err != nil {
-			panic(err)
-		}
+	bID, order, res := p.listMenuValidate(id, sortBy, sortOrder)
+	if res != nil {
+		res.Response(c)
+		return
 	}
-	menu := p.md.ListMenu(businessName, sortBy, order)
-	c.JSON(200, gin.H{"msg": "ok", "list": menu})
+	result := p.md.ListMenuModel(bID, sortBy, order)
+	result.Response(c)
 }
 
-// MenuReadReview godoc
-// @Summary call MenuReadReview, return ok by json.
+func (p *Controller) listMenuValidate(id, sort, order string) (primitive.ObjectID, int, *protocol.ApiResponse[any]) {
+	bID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return primitive.NilObjectID, 0, protocol.Fail(err, protocol.BadRequest)
+	}
+	if r, e := p.md.CheckBusinessID(bID); !r {
+		return primitive.NilObjectID, 0, protocol.FailCustomMessage(e, "No document was found with the business id", protocol.BadRequest)
+	}
+	if r, e := p.md.CheckMenuFieldExists(sort); r {
+		if order == "1" {
+			return bID, 1, nil
+		} else {
+			return bID, -1, nil
+		}
+
+	} else {
+		return primitive.NilObjectID, 0, protocol.FailCustomMessage(e, "No document was found with the business id", protocol.BadRequest)
+	}
+}
+
+// ReadReviewControl godoc
+// @Summary call ReadReviewControl, return ok by json.
 // @메뉴 리뷰 조회 서비스
-// @name MenuReadReview
+// @name ReadReviewControl
 // @Accept  json
 // @Produce  json
-// @Param id query string true "가게 사업체 id"
-// @Param name query string true "메뉴 이름"
+// @Param id query string true "메뉴 id"
 // @Router /menu/list/review [GET]
 // @Success 200 {object} Controller
-func (p *Controller) MenuReadReview(c *gin.Context) {
-	businessId := c.Query("id")
-	menuName := c.Query("name")
-	objId, err := primitive.ObjectIDFromHex(businessId)
-	if err != nil {
-		panic(err)
+func (p *Controller) ReadReviewControl(c *gin.Context) {
+	menuId := c.Query("id")
+	id, res := p.readReviewInputValidate(menuId)
+	if res != nil {
+		res.Response(c)
+		return
 	}
-	result := p.md.ReadMenuReview(objId, menuName)
+	result := p.md.ReadReview(id)
 	c.JSON(200, gin.H{"msg": "ok", "list": result})
+}
+
+func (p *Controller) readReviewInputValidate(id string) (primitive.ObjectID, *protocol.ApiResponse[any]) {
+	menuID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return primitive.NilObjectID, protocol.Fail(err, protocol.BadRequest)
+	}
+	if r, e := p.md.CheckMenuID(menuID); !r {
+		return primitive.NilObjectID, protocol.Fail(e, protocol.BadRequest)
+	}
+	return menuID, nil
+
 }

@@ -1,28 +1,30 @@
 package model
 
 import (
+	"context"
+
+	"go.mongodb.org/mongo-driver/mongo"
+
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Business struct {
-	Id    primitive.ObjectID `bson:"_id"`
-	Name  string             `bson:"name"`
-	Admin primitive.ObjectID `bson:"admin"`
-	Menu  []Menu             `bson:"menu"`
+	ID    primitive.ObjectID `bson:"_id,omitempty"`
+	Name  string             `bson:"name,omitempty"`
+	Admin primitive.ObjectID `bson:"admin,omitempty"`
+	Menu  []Menu             `bson:"menu,omitempty"`
 }
 
-// menu state
-const (
-	Ready    = 1
-	NotReady = 2
-)
-
-type Menu struct {
-	Name      string  `bson:"name"`
-	State     int     `bson:"state"`
-	Price     int     `bson:"price"`
-	Origin    string  `bson:"origin"`
-	Score     float32 `bson:"score"`
-	IsDeleted bool    `bson:"is_deleted"`
-	Category  string  `bson:"category"`
+func (m *Model) CheckBusinessID(id primitive.ObjectID) (bool, error) {
+	filter := bson.M{"_id": id}
+	var result bson.M
+	err := m.colBusiness.FindOne(context.TODO(), filter).Decode(&result)
+	if err == mongo.ErrNoDocuments {
+		return false, nil
+	} else if err != nil {
+		return false, err
+	} else {
+		return true, nil
+	}
 }

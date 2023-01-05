@@ -2,11 +2,12 @@ package model
 
 import (
 	"context"
-	"fmt"
+	"lecture/WBABEProject-23/protocol"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 const (
@@ -23,25 +24,37 @@ const (
 )
 
 type Order struct {
-	Id           primitive.ObjectID `bson:"_id"`
-	OrderID      int64              `bson:"orderid`
-	Orderer      string             `bson:"orderer"`
-	State        int                `bson:"state"`
-	BusinessName string             `bson:"businessname`
-	Menu         []MenuNum          `bson:"menu`
-	CreatedAt    time.Time          `bson:"createdat`
+	ID        primitive.ObjectID `bson:"_id"`
+	OrderID   int64              `bson:"orderid"`
+	BID       primitive.ObjectID `bson:"business_id"`
+	Orderer   string             `bson:"orderer"`
+	State     int                `bson:"state"`
+	Menu      []MenuNum          `bson:"menu"`
+	CreatedAt time.Time          `bson:"created_at"`
 }
 
 type MenuNum struct {
-	MenuName   string `bson:"menuname"`
-	Number     int    `bson:"number"`
-	IsReviewed bool   `bson:"isreviewed"`
+	MenuID     primitive.ObjectID `bson:"menu_id"`
+	Number     int                `bson:"number"`
+	IsReviewed bool               `bson:"is_reviewed"`
 }
 
-func (m *Model) MakeOrder(order Order) {
+func (m *Model) CheckOrderByID(id primitive.ObjectID) (bool, error) {
+	filter := bson.M{"_id": id}
+	var result bson.M
+	err := m.colOrder.FindOne(context.TODO(), filter).Decode(&result)
+	if err == mongo.ErrNoDocuments {
+		return false, nil
+	} else if err != nil {
+		return false, err
+	} else {
+		return true, nil
+	}
+}
+
+func (m *Model) CreateOrder(order *Order) *protocol.ApiResponse[any] {
 	now := time.Now().UTC()
 
-	// Set the start and end of the range to the start and end of the desired day
 	start := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
 	end := start.AddDate(0, 0, 1)
 	filter := bson.M{"createdat": bson.M{
@@ -50,14 +63,12 @@ func (m *Model) MakeOrder(order Order) {
 	}}
 	count, err := m.colOrder.CountDocuments(context.TODO(), filter)
 	if err != nil {
-		fmt.Println(err)
-		panic(err)
+		return protocol.Fail(err, protocol.InternalServerError)
 	}
 	order.OrderID = count + 1
-	fmt.Println(order)
-	result, err := m.colOrder.InsertOne(context.TODO(), order)
+	_, err = m.colOrder.InsertOne(context.TODO(), order)
 	if err != nil {
-		panic(err)
+		return protocol.Fail(err, protocol.InternalServerError)
 	}
-	fmt.Println(result.InsertedID)
+	return protocol.Success(protocol.Created)
 }

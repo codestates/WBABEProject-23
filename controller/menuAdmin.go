@@ -1,12 +1,14 @@
 package controller
 
 import (
-	"fmt"
 	"lecture/WBABEProject-23/model"
+	"lecture/WBABEProject-23/protocol"
 	"net/http"
 
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+
 	"github.com/gin-gonic/gin"
-	"github.com/mitchellh/mapstructure"
 )
 
 // NewMenu godoc
@@ -15,69 +17,115 @@ import (
 // @name NewMenu
 // @Accept  json
 // @Produce  json
-// @Param business_id header string true "사업체 ID"
-// @Param id body NewMenuInput true "메뉴 입력"
+// @Param id body CreateMenuInput true "메뉴 입력"
 // @Router /menu/admin/new [POST]
 // @Success 200 {object} Controller
-func (p *Controller) NewMenu(c *gin.Context) {
-	var menu model.Menu
-	if err := c.ShouldBind(&menu); err != nil {
+func (p *Controller) CreateMenuController(c *gin.Context) {
+	var body CreateMenuInput
+	if err := c.ShouldBind(&body); err != nil {
 		c.String(http.StatusBadRequest, "Bad request: %v", err)
 		return
 	}
-	menu.State = 1
-	menu.IsDeleted = false
-	business := c.GetHeader("business_id")
-	result := p.md.CreateNewMenu(menu, business)
-	msg := [3]string{
-		"No document was found with the business id",
-		"Internl Error",
-		"ok",
+	menu, errRes := p.createMenuInputValidate(body)
+	if errRes != nil {
+		errRes.Response(c)
+		return
 	}
-	statusCode := [3]int{400, 500, 200}
-	c.JSON(statusCode[result], gin.H{"msg": msg[result]})
+	result := p.md.CreateMenu(*menu)
+	result.Response(c)
+}
+
+func (p *Controller) createMenuInputValidate(body CreateMenuInput) (res *model.Menu, errorRes *protocol.ApiResponse[any]) {
+
+	res = new(model.Menu)
+	var err error
+	bID, err := primitive.ObjectIDFromHex(body.BusinessID)
+	if err != nil {
+		return nil, protocol.Fail(err, protocol.BadRequest)
+	}
+	if r, e := p.md.CheckBusinessID(bID); !r {
+		return nil, protocol.FailCustomMessage(e, "No document was found with the business id", protocol.BadRequest)
+	}
+	res.BusinessID = bson.M{"$ref": "business", "$id": bID}
+	res.Name = body.Name
+	res.Price = body.Price
+	res.Origin = body.Category
+	res.Category = body.Category
+	res.State = 1
+	res.IsDeleted = false
+	return res, nil
 }
 
 // swag input 용
-type NewMenuInput struct {
-	Name     string `bson:"name"`
-	Price    int    `bson:"price"`
-	Origin   string `bson:"origin"`
-	Category string `bson:"category"`
+type CreateMenuInput struct {
+	Name       string `bson:"name"`
+	Price      int    `bson:"price"`
+	Origin     string `bson:"origin"`
+	Category   string `bson:"category"`
+	BusinessID string `bson:"business_id,omitempty"`
 }
 
-// ModifyMenu godoc
-// @Summary call ModifyMenu, return ok by json.
+// UpdateMenu godoc
+// @Summary call UpdateMenu, return ok by json.
 // @메뉴 수정/삭제.
-// @name ModifyMenu
+// @name UpdateMenu
 // @Accept  json
 // @Produce  json
-// @Param business_id header string true "사업체 ID"
-// @Param id body ModifyMenuInput true "User input 바꿀 메뉴 이름 toUpdate로 추가, 바꿀내용만 작성"
+// @Param id body UpdateMenuInput true "User input 바꿀 메뉴 이름 toUpdate로 추가, 바꿀내용만 작성"
 // @Router /menu/admin/modify [PATCH]
 // @Success 200 {object} Controller
-func (p *Controller) ModifyMenu(c *gin.Context) {
-	var menu model.Menu
-	var jsonMap map[string]interface{}
-	business := c.GetHeader("business_id")
-	if err := c.BindJSON(&jsonMap); err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
+func (p *Controller) UpdateMenu(c *gin.Context) {
+	var body UpdateMenuInput
+	if err := c.ShouldBindJSON(&body); err != nil {
+		protocol.Fail(err, protocol.BadRequest).Response(c)
 		return
 	}
-	toUpdate := fmt.Sprintf("%v", jsonMap["toUpdate"])
-	err := mapstructure.Decode(jsonMap, &menu)
-	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+	menu, res := p.updateMenuInputValidate(body)
+	if res != nil {
+		res.Response(c)
 	}
-	p.md.ModifyMenu(toUpdate, business, menu)
-	c.JSON(200, gin.H{"msg": "ok"})
+	res = p.md.UpdateMenu(menu)
+	res.Response(c)
 }
 
-type ModifyMenuInput struct {
-	State    int    `bson:"state"`
-	Price    int    `bson:"price"`
-	Origin   string `bson:"origin"`
-	Category string `bson:"category"`
-	ToUpdate string `bson:"toUpdate"`
+func (p *Controller) updateMenuInputValidate(body UpdateMenuInput) (*model.Menu, *protocol.ApiResponse[any]) {
+	toUpdate, err := primitive.ObjectIDFromHex(body.ID)
+	if err != nil {
+		return nil, protocol.Fail(err, protocol.BadRequest)
+	}
+	menu, err := p.md.GetMenuById(toUpdate)
+	if err != nil {
+		return nil, protocol.Fail(err, protocol.BadRequest)
+	}
+
+	if body.Name != "" {
+		menu.Name = body.Name
+	}
+	if body.State != 0 {
+		menu.State = body.State
+	}
+	if body.Price != 0 {
+		menu.Price = body.Price
+	}
+	if body.Origin != "" {
+		menu.Origin = body.Origin
+	}
+	if body.Category != "" {
+		menu.Category = body.Category
+	}
+	if (menu.Price < 0) || (menu.State != 1 && menu.State != 2) {
+		return nil, protocol.FailCustomMessage(err, "Invalid Input", protocol.BadRequest)
+	}
+
+	return menu, nil
+}
+
+type UpdateMenuInput struct {
+	ID        string `bson:"id" binding:"required"`
+	Name      string `bson:"name,omitempty"`
+	State     int    `bson:"state,omitempty"`
+	Price     int    `bson:"price,omitempty"`
+	Origin    string `bson:"origin,omitempty"`
+	Category  string `bson:"category,omitempty"`
+	IsDeleted bool   `bson:"is_deleted,omitempty"`
 }

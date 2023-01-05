@@ -3,6 +3,7 @@ package model
 import (
 	"context"
 	"fmt"
+	"lecture/WBABEProject-23/protocol"
 	"reflect"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -10,7 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func (m *Model) ModifyOrder(orderID primitive.ObjectID, menu []MenuNum) bool {
+func (m *Model) UpdateOrder(orderID primitive.ObjectID, menu []MenuNum) *protocol.ApiResponse[any] {
 	filter := bson.M{"_id": orderID}
 
 	var order Order
@@ -26,10 +27,10 @@ func (m *Model) ModifyOrder(orderID primitive.ObjectID, menu []MenuNum) bool {
 	state := order.State
 	switch state {
 	case DeliverComplete, Delivering, ReceiptCancled, AdditionalReceiptCancled:
-		return false
+		return protocol.FailCustomMessage(nil, "The state is not updatable", protocol.BadRequest)
 	case ReceiptCooking, AdditionalReceiptCooking:
 		if !addition {
-			return false
+			return protocol.FailCustomMessage(nil, "The state is not updatable", protocol.BadRequest)
 		}
 	}
 	update := bson.M{"$set": bson.M{"menu": menu, "state": AdditionalReceipting}}
@@ -38,7 +39,7 @@ func (m *Model) ModifyOrder(orderID primitive.ObjectID, menu []MenuNum) bool {
 		panic(err)
 	}
 	fmt.Println(result)
-	return true
+	return protocol.Success(protocol.OK)
 }
 
 func (m *Model) UpdateOrderState(orderID primitive.ObjectID, state int) bool {
