@@ -18,7 +18,7 @@ import (
 // @Accept  json
 // @Produce  json
 // @Param id body CreateMenuInput true "메뉴 입력"
-// @Router /menu/admin/new [POST]
+// @Router /menu/admin [POST]
 // @Success 200 {object} Controller
 func (p *Controller) CreateMenuController(c *gin.Context) {
 	var body CreateMenuInput
@@ -72,7 +72,7 @@ type CreateMenuInput struct {
 // @Accept  json
 // @Produce  json
 // @Param id body UpdateMenuInput true "User input 바꿀 메뉴 이름 toUpdate로 추가, 바꿀내용만 작성"
-// @Router /menu/admin/modify [PATCH]
+// @Router /menu/admin [PATCH]
 // @Success 200 {object} Controller
 func (p *Controller) UpdateMenu(c *gin.Context) {
 	var body UpdateMenuInput

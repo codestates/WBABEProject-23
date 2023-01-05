@@ -18,8 +18,49 @@ type Router struct {
 
 func NewRouter(ctl *ctl.Controller) (*Router, error) {
 	r := &Router{ct: ctl}
-
 	return r, nil
+}
+
+func (p *Router) Index() *gin.Engine {
+
+	// gin.SetMode(gin.ReleaseMode)
+	// gin.SetMode(gin.DebugMode)
+
+	e := gin.New()
+	e.Use(logger.GinLogger())
+	e.Use(logger.GinRecovery(true))
+	e.Use(CORS())
+
+	logger.Info("start server")
+
+	e.GET("/swagger/:any", ginSwg.WrapHandler(swgFiles.Handler))
+	docs.SwaggerInfo.Host = "localhost:8080"
+
+	menuAdmin := e.Group("/menu/admin", liteAuth())
+	{
+		menuAdmin.POST("", p.ct.CreateMenuController)
+		menuAdmin.PATCH("", p.ct.UpdateMenu)
+	}
+	menuRead := e.Group("/menu", liteAuth())
+	{
+		menuRead.GET("", p.ct.ListMenuControl)
+	}
+	order := e.Group("/order", liteAuth())
+	{
+		order.POST("", p.ct.CreateOrder) //주문
+
+		order.GET("", p.ct.ListOrder)                      //주문 조회
+		order.GET("/admin", p.ct.AdminListOrderController) //주문 상태 조회
+		order.PATCH("", p.ct.UpdateOrder)                  //주문 변경
+		order.PATCH("/admin", p.ct.UpdateState)            //주문 상태 변경
+	}
+	review := e.Group("/review", liteAuth())
+	{
+		review.POST("", p.ct.CreateReview) //리뷰 작성
+		review.GET("", p.ct.ReadReviewControl)
+	}
+
+	return e
 }
 
 // cross domain을 위해 사용
@@ -53,47 +94,4 @@ func liteAuth() gin.HandlerFunc {
 
 		c.Next() // 다음 요청 진행
 	}
-}
-
-func (p *Router) Index() *gin.Engine {
-
-	// gin.SetMode(gin.ReleaseMode)
-	// gin.SetMode(gin.DebugMode)
-
-	e := gin.New()
-	e.Use(logger.GinLogger())
-	e.Use(logger.GinRecovery(true))
-	e.Use(CORS())
-
-	logger.Info("start server")
-
-	e.GET("/swagger/:any", ginSwg.WrapHandler(swgFiles.Handler))
-	docs.SwaggerInfo.Host = "localhost:8080"
-
-	menuAdmin := e.Group("/menu/admin", liteAuth())
-	{
-		menuAdmin.POST("/new", p.ct.CreateMenuController)
-		menuAdmin.PATCH("modify", p.ct.UpdateMenu)
-
-	}
-	menuService := e.Group("/menu", liteAuth())
-	{
-		menuService.GET("/list", p.ct.ListMenuControl)
-		menuService.GET("/list/review", p.ct.ReadReviewControl)
-	}
-	order := e.Group("/order", liteAuth())
-	{
-		order.POST("/make", p.ct.CreateOrder) //주문
-
-		order.GET("/list", p.ct.ListOrder)                      //주문 조회
-		order.GET("/admin/list", p.ct.AdminListOrderController) //주문 상태 조회
-		order.PATCH("/modify", p.ct.UpdateOrder)                //주문 변경
-		order.PATCH("/admin/update", p.ct.UpdateState)          //주문 상태 변경
-	}
-	review := e.Group("review", liteAuth())
-	{
-		review.POST("", p.ct.CreateReview) //리뷰 작성
-	}
-
-	return e
 }

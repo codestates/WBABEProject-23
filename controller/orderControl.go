@@ -20,11 +20,6 @@ import (
 // @Router /order/make [POST]
 // @Success 200 {object} Controller
 func (p *Controller) CreateOrder(c *gin.Context) {
-	// loc, err := time.LoadLocation("Asia/Seoul")
-	// if err != nil {
-	// 	protocol.Fail(err, protocol.BadRequest).Response(c)
-	// 	return
-	// }
 	var input = new(CreateOrderInput)
 	if err := c.ShouldBind(&input); err != nil {
 		protocol.Fail(err, protocol.BadRequest).Response(c)
@@ -86,7 +81,7 @@ type CreateOrderInput struct {
 // @Produce  json
 // @Param name query string true "유저이름"
 // @Param cur query string true "1은 현재 주문, 그 외 과거 주문"
-// @Router /order/list [GET]
+// @Router /order [GET]
 // @Success 200 {object} Controller
 func (p *Controller) ListOrder(c *gin.Context) {
 	userName := c.Query("name")
@@ -104,7 +99,7 @@ func (p *Controller) ListOrder(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param input body UpdateOrderInput true "수정할 주문 번호, 변경한 주문 메뉴 [{메뉴이름, 수량}]"
-// @Router /order/modify [PATCH]
+// @Router /order [PATCH]
 // @Success 200 {object} Controller
 func (p *Controller) UpdateOrder(c *gin.Context) {
 	var input UpdateOrderInput
@@ -146,114 +141,4 @@ type UpdateOrderInput struct {
 		MenuID string `bson:"menu_id"`
 		Number int    `bson:"number"`
 	} `bson:"menu"`
-}
-
-// AdminListOrderController godoc
-// @Summary call AdminListOrderController, return ok by json.
-// @가게에서 주문 목록 조회
-// @name AdminListOrderController
-// @Accept  json
-// @Produce  json
-// @Param id query string true "사업체 id"
-// @Router /order/admin/list [GET]
-// @Success 200 {object} Controller
-func (p *Controller) AdminListOrderController(c *gin.Context) {
-	id := c.Query("id")
-	BID, res := p.adminListOrderInputValidate(id)
-	if res != nil {
-		res.Response(c)
-	}
-	result := p.md.AdminListOrder(BID)
-	c.JSON(200, gin.H{"msg": "ok", "list": result})
-}
-
-func (p *Controller) adminListOrderInputValidate(id string) (primitive.ObjectID, *protocol.ApiResponse[any]) {
-	BID, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return primitive.NilObjectID, protocol.Fail(err, protocol.BadRequest)
-	}
-	return BID, nil
-}
-
-// UpdateState godoc
-// @Summary call UpdateState, return ok by json.
-// @가게에서 주문 상태 변경
-// @name UpdateState
-// @Accept  json
-// @Produce  json
-// @Param input body UpdateStateInput true "주문 번호, 상태 "
-// @Router /order/admin/update [PATCH]
-// @Success 200 {object} Controller
-func (p *Controller) UpdateState(c *gin.Context) {
-	var input UpdateStateInput
-	c.ShouldBind(&input)
-	orderId, err := primitive.ObjectIDFromHex(input.OrderId)
-	if err != nil {
-		panic(err)
-	}
-	result := p.md.UpdateOrderState(orderId, input.State)
-	if result {
-		c.JSON(200, gin.H{"msg": "update request success"})
-	} else {
-		c.JSON(200, gin.H{"msg": "update request failed"})
-	}
-}
-
-type UpdateStateInput struct {
-	OrderId string `bson:"orderid:`
-	State   int    `bson:"state"`
-}
-
-// CreateReview godoc
-// @Summary call CreateReview, return ok by json.
-// @리뷰 작성하기
-// @name CreateReview
-// @Accept  json
-// @Produce  json
-// @Param input body ReviewInput true "리뷰"
-// @Router /review [POST]
-// @Success 200 {object} Controller
-func (p *Controller) CreateReview(c *gin.Context) {
-	var input ReviewInput
-	err := c.ShouldBind(&input)
-	if err != nil {
-		protocol.Fail(err, protocol.BadRequest).Response(c)
-		return
-	}
-	review, res := p.createReviewInputValidate(input)
-	if res != nil {
-		res.Response(c)
-		return
-	}
-	result := p.md.CreateReview(review)
-	result.Response(c)
-}
-
-func (p *Controller) createReviewInputValidate(body ReviewInput) (*model.Review, *protocol.ApiResponse[any]) {
-	review := new(model.Review)
-	var err error
-	review.OrderID, err = primitive.ObjectIDFromHex(body.OrderID)
-	if err != nil {
-		return nil, protocol.Fail(err, protocol.BadRequest)
-	}
-	if r, e := p.md.CheckOrderByID(review.OrderID); !r {
-		return nil, protocol.FailCustomMessage(e, "No matching order", protocol.BadRequest)
-	}
-	review.MenuID, err = primitive.ObjectIDFromHex(body.MenuID)
-	if err != nil {
-		protocol.Fail(err, protocol.BadRequest)
-	}
-
-	review.Orderer = body.Orderer
-	review.Content = body.Content
-	review.Score = body.Score
-	return review, nil
-}
-
-type ReviewInput struct {
-	OrderID string  `bson:"order_id" json:"order_id"`
-	MenuID  string  `bson:"menu_id" json:"menu_id"`
-	Orderer string  `bson:"orderer"`
-	Content string  `bson:"content"`
-	Score   float32 `bson:"score"`
 }

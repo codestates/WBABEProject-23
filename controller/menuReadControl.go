@@ -17,7 +17,7 @@ import (
 // @Param id query string true "id"
 // @Param sort query string true "sort할 컬럼이름"
 // @Param order query string true "order= 1은 오름찬순 그 외 내림차순 "
-// @Router /menu/list [GET]
+// @Router /menu [GET]
 // @Success 200 {object} Controller
 func (p *Controller) ListMenuControl(c *gin.Context) {
 	id := c.Query("id")
@@ -59,7 +59,7 @@ func (p *Controller) listMenuValidate(id, sort, order string) (primitive.ObjectI
 // @Accept  json
 // @Produce  json
 // @Param id query string true "메뉴 id"
-// @Router /menu/list/review [GET]
+// @Router /review [GET]
 // @Success 200 {object} Controller
 func (p *Controller) ReadReviewControl(c *gin.Context) {
 	menuId := c.Query("id")

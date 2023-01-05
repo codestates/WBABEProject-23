@@ -16,67 +16,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/menu/admin/modify": {
-            "patch": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "call UpdateMenu, return ok by json.",
-                "parameters": [
-                    {
-                        "description": "User input 바꿀 메뉴 이름 toUpdate로 추가, 바꿀내용만 작성",
-                        "name": "id",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/controller.UpdateMenuInput"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/controller.Controller"
-                        }
-                    }
-                }
-            }
-        },
-        "/menu/admin/new": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "call NewMenu, return ok by json.",
-                "parameters": [
-                    {
-                        "description": "메뉴 입력",
-                        "name": "id",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/controller.CreateMenuInput"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/controller.Controller"
-                        }
-                    }
-                }
-            }
-        },
-        "/menu/list": {
+        "/menu": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -118,22 +58,52 @@ const docTemplate = `{
                 }
             }
         },
-        "/menu/list/review": {
-            "get": {
+        "/menu/admin": {
+            "post": {
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
                 ],
-                "summary": "call ReadReviewControl, return ok by json.",
+                "summary": "call NewMenu, return ok by json.",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "메뉴 id",
+                        "description": "메뉴 입력",
                         "name": "id",
-                        "in": "query",
-                        "required": true
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.CreateMenuInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.Controller"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "call UpdateMenu, return ok by json.",
+                "parameters": [
+                    {
+                        "description": "User input 바꿀 메뉴 이름 toUpdate로 추가, 바꿀내용만 작성",
+                        "name": "id",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.UpdateMenuInput"
+                        }
                     }
                 ],
                 "responses": {
@@ -146,7 +116,70 @@ const docTemplate = `{
                 }
             }
         },
-        "/order/admin/list": {
+        "/order": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "call ListOrder, return ok by json.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "유저이름",
+                        "name": "name",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "1은 현재 주문, 그 외 과거 주문",
+                        "name": "cur",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.Controller"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "call UpdateOrder, return ok by json.",
+                "parameters": [
+                    {
+                        "description": "수정할 주문 번호, 변경한 주문 메뉴 [{메뉴이름, 수량}]",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.UpdateOrderInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.Controller"
+                        }
+                    }
+                }
+            }
+        },
+        "/order/admin": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -172,9 +205,7 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/order/admin/update": {
+            },
             "patch": {
                 "consumes": [
                     "application/json"
@@ -192,41 +223,6 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/controller.UpdateStateInput"
                         }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/controller.Controller"
-                        }
-                    }
-                }
-            }
-        },
-        "/order/list": {
-            "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "call ListOrder, return ok by json.",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "유저이름",
-                        "name": "name",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "1은 현재 주문, 그 외 과거 주문",
-                        "name": "cur",
-                        "in": "query",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -269,24 +265,22 @@ const docTemplate = `{
                 }
             }
         },
-        "/order/modify": {
-            "patch": {
+        "/review": {
+            "get": {
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
                 ],
-                "summary": "call UpdateOrder, return ok by json.",
+                "summary": "call ReadReviewControl, return ok by json.",
                 "parameters": [
                     {
-                        "description": "수정할 주문 번호, 변경한 주문 메뉴 [{메뉴이름, 수량}]",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/controller.UpdateOrderInput"
-                        }
+                        "type": "string",
+                        "description": "메뉴 id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -297,9 +291,7 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/review": {
+            },
             "post": {
                 "consumes": [
                     "application/json"
