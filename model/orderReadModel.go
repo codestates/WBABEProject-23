@@ -10,7 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func (m *Model) ListOrder(userName string, cur bool) *protocol.ApiResponse[any] {
+func (m *Model) ReadOrder(userName string, cur bool) *protocol.ApiResponse[any] {
 	var filter bson.M
 	if cur {
 		filter = bson.M{"orderer": userName, "state": bson.M{"$ne": DeliverComplete}}

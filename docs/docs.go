@@ -56,34 +56,6 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "patch": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "call UpdateMenu, return ok by json.",
-                "parameters": [
-                    {
-                        "description": "User input 바꿀 메뉴 이름 toUpdate로 추가, 바꿀내용만 작성",
-                        "name": "id",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/controller.UpdateMenuInput"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/controller.Controller"
-                        }
-                    }
-                }
             }
         },
         "/order": {
@@ -109,6 +81,34 @@ const docTemplate = `{
                         "name": "cur",
                         "in": "query",
                         "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.Controller"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "call CreateOrder, return ok by json.",
+                "parameters": [
+                    {
+                        "description": "주문자 이름,  메뉴 배열형태로 메뉴ID, 주문 수량 입력",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.CreateOrderInput"
+                        }
                     }
                 ],
                 "responses": {
@@ -192,36 +192,6 @@ const docTemplate = `{
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/controller.UpdateStateInput"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/controller.Controller"
-                        }
-                    }
-                }
-            }
-        },
-        "/order/make": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "call CreateOrder, return ok by json.",
-                "parameters": [
-                    {
-                        "description": "주문자 이름,  메뉴 배열형태로 메뉴ID, 주문 수량 입력",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/controller.CreateOrderInput"
                         }
                     }
                 ],
@@ -338,35 +308,6 @@ const docTemplate = `{
                 },
                 "score": {
                     "type": "number"
-                }
-            }
-        },
-        "controller.UpdateMenuInput": {
-            "type": "object",
-            "required": [
-                "id"
-            ],
-            "properties": {
-                "category": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "isDeleted": {
-                    "type": "boolean"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "origin": {
-                    "type": "string"
-                },
-                "price": {
-                    "type": "integer"
-                },
-                "state": {
-                    "type": "integer"
                 }
             }
         },

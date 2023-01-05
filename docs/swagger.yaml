@@ -30,25 +30,6 @@ definitions:
       score:
         type: number
     type: object
-  controller.UpdateMenuInput:
-    properties:
-      category:
-        type: string
-      id:
-        type: string
-      isDeleted:
-        type: boolean
-      name:
-        type: string
-      origin:
-        type: string
-      price:
-        type: integer
-      state:
-        type: integer
-    required:
-    - id
-    type: object
   controller.UpdateOrderInput:
     properties:
       menu:
@@ -106,24 +87,6 @@ paths:
           schema:
             $ref: '#/definitions/controller.Controller'
       summary: call ListMenu, return ok by json.
-    patch:
-      consumes:
-      - application/json
-      parameters:
-      - description: User input 바꿀 메뉴 이름 toUpdate로 추가, 바꿀내용만 작성
-        in: body
-        name: id
-        required: true
-        schema:
-          $ref: '#/definitions/controller.UpdateMenuInput'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/controller.Controller'
-      summary: call UpdateMenu, return ok by json.
   /order:
     get:
       consumes:
@@ -165,6 +128,24 @@ paths:
           schema:
             $ref: '#/definitions/controller.Controller'
       summary: call UpdateOrder, return ok by json.
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 주문자 이름,  메뉴 배열형태로 메뉴ID, 주문 수량 입력
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/controller.CreateOrderInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Controller'
+      summary: call CreateOrder, return ok by json.
   /order/admin:
     get:
       consumes:
@@ -201,25 +182,6 @@ paths:
           schema:
             $ref: '#/definitions/controller.Controller'
       summary: call UpdateState, return ok by json.
-  /order/make:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: 주문자 이름,  메뉴 배열형태로 메뉴ID, 주문 수량 입력
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/controller.CreateOrderInput'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/controller.Controller'
-      summary: call CreateOrder, return ok by json.
   /review:
     get:
       consumes:

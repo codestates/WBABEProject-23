@@ -40,15 +40,15 @@ func (p *Router) Index() *gin.Engine {
 	{
 		menu.POST("", p.ct.CreateMenu)
 		menu.PATCH("", p.ct.UpdateMenu)
-		menu.GET("", p.ct.ListMenu)
+		menu.GET("", p.ct.ReadMenu)
 	}
 	order := e.Group("/order", liteAuth())
 	{
-		order.POST("", p.ct.CreateOrder)                   //주문
-		order.GET("", p.ct.ListOrder)                      //주문 조회
-		order.GET("/admin", p.ct.AdminListOrderController) //주문 상태 조회
-		order.PATCH("", p.ct.UpdateOrder)                  //주문 변경
-		order.PATCH("/admin", p.ct.UpdateState)            //주문 상태 변경
+		order.POST("", p.ct.CreateOrder)             //주문
+		order.GET("", p.ct.ReadOrder)                //주문 조회
+		order.GET("/admin", p.ct.AdminReadOrder)     //주문 상태 조회
+		order.PATCH("", p.ct.UpdateOrder)            //주문 변경
+		order.PATCH("/admin", p.ct.UpdateOrderState) //주문 상태 변경
 	}
 	review := e.Group("/review", liteAuth())
 	{

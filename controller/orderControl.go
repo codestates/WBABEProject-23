@@ -17,7 +17,7 @@ import (
 // @Accept  json
 // @Produce  json
 // @Param input body CreateOrderInput true "주문자 이름,  메뉴 배열형태로 메뉴ID, 주문 수량 입력"
-// @Router /order/make [POST]
+// @Router /order [POST]
 // @Success 200 {object} Controller
 func (p *Controller) CreateOrder(c *gin.Context) {
 	var input = new(CreateOrderInput)
@@ -69,25 +69,24 @@ type CreateOrderInput struct {
 	BID     string `bson:"business_id"`
 	Menu    []struct {
 		MenuID string `bson:"menu_id"`
-		Number int    `bson:"number"`
+		Number int    `bson:"number" binding:"gte=0"`
 	} `bson:"menu"`
 }
 
-// ListOrder godoc
-// @Summary call ListOrder, return ok by json.
+// ReadOrder godoc
+// @Summary call ReadOrder, return ok by json.
 // @주문자 - 주문조회 서비스
-// @name ListOrder
+// @name ReadOrder
 // @Accept  json
 // @Produce  json
 // @Param name query string true "유저이름"
 // @Param cur query string true "1은 현재 주문, 그 외 과거 주문"
 // @Router /order [GET]
 // @Success 200 {object} Controller
-func (p *Controller) ListOrder(c *gin.Context) {
+func (p *Controller) ReadOrder(c *gin.Context) {
 	userName := c.Query("name")
 	cur := c.Query("cur")
-
-	result := p.md.ListOrder(userName, cur == "1")
+	result := p.md.ReadOrder(userName, cur == "1")
 	result.Response(c)
 }
 

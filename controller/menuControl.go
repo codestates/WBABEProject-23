@@ -24,7 +24,7 @@ import (
 
 type CreateMenuInput struct {
 	Name       string `bson:"name" binding:"required"`
-	Price      int    `bson:"price" binding:"required,gte=0"`
+	Price      int    `bson:"price" binding:"gte=0"`
 	Origin     string `bson:"origin" binding:"required"`
 	Category   string `bson:"category" binding:"required"`
 	BusinessID string `bson:"business_id,omitempty" binding:"required"`
@@ -74,6 +74,16 @@ func (p *Controller) createMenuInputValidate(body CreateMenuInput) (res *model.M
 // @Param id body UpdateMenuInput true "User input 바꿀 메뉴 이름 toUpdate로 추가, 바꿀내용만 작성"
 // @Router /menu [PATCH]
 // @Success 200 {object} Controller
+type UpdateMenuInput struct {
+	ID        string `bson:"id" binding:"required"`
+	Name      string `bson:"name,omitempty"`
+	State     int    `bson:"state,omitempty" binding:"gte=1,lte=2"`
+	Price     int    `bson:"price,omitempty" binding:"gte=0"`
+	Origin    string `bson:"origin,omitempty"`
+	Category  string `bson:"category,omitempty"`
+	IsDeleted bool   `bson:"is_deleted,omitempty"`
+}
+
 func (p *Controller) UpdateMenu(c *gin.Context) {
 	var body UpdateMenuInput
 	if err := c.ShouldBindJSON(&body); err != nil {
@@ -97,7 +107,6 @@ func (p *Controller) updateMenuInputValidate(body UpdateMenuInput) (*model.Menu,
 	if err != nil {
 		return nil, protocol.Fail(err, protocol.BadRequest)
 	}
-
 	if body.Name != "" {
 		menu.Name = body.Name
 	}
@@ -113,19 +122,49 @@ func (p *Controller) updateMenuInputValidate(body UpdateMenuInput) (*model.Menu,
 	if body.Category != "" {
 		menu.Category = body.Category
 	}
-	if (menu.Price < 0) || (menu.State != 1 && menu.State != 2) {
-		return nil, protocol.FailCustomMessage(err, "Invalid Input", protocol.BadRequest)
-	}
-
 	return menu, nil
 }
 
-type UpdateMenuInput struct {
-	ID        string `bson:"id" binding:"required"`
-	Name      string `bson:"name,omitempty"`
-	State     int    `bson:"state,omitempty"`
-	Price     int    `bson:"price,omitempty"`
-	Origin    string `bson:"origin,omitempty"`
-	Category  string `bson:"category,omitempty"`
-	IsDeleted bool   `bson:"is_deleted,omitempty"`
+// ReadMenu godoc
+// @Summary call ReadMenu, return ok by json.
+// @메뉴 조회
+// @name ReadMenu
+// @Accept  json
+// @Produce  json
+// @Param id query string true "id"
+// @Param sort query string true "sort할 컬럼이름"
+// @Param order query string true "order= 1은 오름찬순 그 외 내림차순 "
+// @Router /menu [GET]
+// @Success 200 {object} Controller
+func (p *Controller) ReadMenu(c *gin.Context) {
+	id := c.Query("id")
+	sortBy := c.Query("sort")
+	sortOrder := c.Query("order")
+	bID, order, res := p.ReadMenuValidate(id, sortBy, sortOrder)
+	if res != nil {
+		res.Response(c)
+		return
+	}
+	result := p.md.ReadMenu(bID, sortBy, order)
+	result.Response(c)
+}
+
+func (p *Controller) ReadMenuValidate(id, sort, order string) (primitive.ObjectID, int, *protocol.ApiResponse[any]) {
+	bID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return primitive.NilObjectID, 0, protocol.Fail(err, protocol.BadRequest)
+	}
+	if r, e := p.md.CheckBusinessID(bID); !r {
+		return primitive.NilObjectID, 0, protocol.FailCustomMessage(e, "No document was found with the business id", protocol.BadRequest)
+	}
+	if r, e := p.md.CheckMenuFieldExists(sort); r {
+		if order == "1" {
+			return bID, 1, nil
+		} else {
+			return bID, -1, nil
+		}
+
+	} else {
+		return primitive.NilObjectID, 0, protocol.FailCustomMessage(e, "No document was found with the business id", protocol.BadRequest)
+	}
 }

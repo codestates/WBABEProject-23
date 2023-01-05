@@ -8,18 +8,18 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// AdminListOrderController godoc
-// @Summary call AdminListOrderController, return ok by json.
+// AdminReadOrder godoc
+// @Summary call AdminReadOrder, return ok by json.
 // @가게에서 주문 목록 조회
-// @name AdminListOrderController
+// @name AdminReadOrder
 // @Accept  json
 // @Produce  json
 // @Param id query string true "사업체 id"
 // @Router /order/admin [GET]
 // @Success 200 {object} Controller
-func (p *Controller) AdminListOrderController(c *gin.Context) {
+func (p *Controller) AdminReadOrder(c *gin.Context) {
 	id := c.Query("id")
-	BID, res := p.adminListOrderInputValidate(id)
+	BID, res := p.adminReadOrderInputValidate(id)
 	if res != nil {
 		res.Response(c)
 	}
@@ -27,7 +27,7 @@ func (p *Controller) AdminListOrderController(c *gin.Context) {
 	result.Response(c)
 }
 
-func (p *Controller) adminListOrderInputValidate(id string) (primitive.ObjectID, *protocol.ApiResponse[any]) {
+func (p *Controller) adminReadOrderInputValidate(id string) (primitive.ObjectID, *protocol.ApiResponse[any]) {
 	BID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return primitive.NilObjectID, protocol.Fail(err, protocol.BadRequest)
@@ -35,17 +35,17 @@ func (p *Controller) adminListOrderInputValidate(id string) (primitive.ObjectID,
 	return BID, nil
 }
 
-// UpdateState godoc
-// @Summary call UpdateState, return ok by json.
+// UpdateOrderState godoc
+// @Summary call UpdateOrderState, return ok by json.
 // @가게에서 주문 상태 변경
-// @name UpdateState
+// @name UpdateOrderState
 // @Accept  json
 // @Produce  json
-// @Param input body UpdateStateInput true "주문 번호, 상태 "
+// @Param input body UpdateOrderStateInput true "주문 번호, 상태 "
 // @Router /order/admin [PATCH]
 // @Success 200 {object} Controller
-func (p *Controller) UpdateState(c *gin.Context) {
-	var input UpdateStateInput
+func (p *Controller) UpdateOrderState(c *gin.Context) {
+	var input UpdateOrderStateInput
 	if err := c.ShouldBindWith(&input, binding.JSON); err != nil {
 		protocol.Fail(err, protocol.BadRequest).Response(c)
 		return
@@ -59,7 +59,7 @@ func (p *Controller) UpdateState(c *gin.Context) {
 	result.Response(c)
 }
 
-type UpdateStateInput struct {
+type UpdateOrderStateInput struct {
 	OrderId string `bson:"orderid" binding:"required"`
 	State   int    `bson:"state" binding:"required,gte=1,lte=10"`
 }

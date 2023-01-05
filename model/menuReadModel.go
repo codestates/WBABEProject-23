@@ -12,7 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func (m *Model) ListMenuModel(id primitive.ObjectID, sortBy string, sortOrder int) *protocol.ApiResponse[any] {
+func (m *Model) ReadMenu(id primitive.ObjectID, sortBy string, sortOrder int) *protocol.ApiResponse[any] {
 	filter := bson.M{"business_id": bson.M{"$ref": "business", "$id": id}, "is_deleted": false}
 	option := options.Find().SetSort(bson.M{sortBy: sortOrder}).SetProjection(bson.M{"name": 1, "price": 1, "origin": 1, "score": 1, "category": 1})
 	cursor, err := m.colMenu.Find(context.TODO(), filter, option)
