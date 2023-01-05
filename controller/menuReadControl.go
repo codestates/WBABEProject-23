@@ -19,7 +19,7 @@ import (
 // @Param order query string true "order= 1은 오름찬순 그 외 내림차순 "
 // @Router /menu [GET]
 // @Success 200 {object} Controller
-func (p *Controller) ListMenuControl(c *gin.Context) {
+func (p *Controller) ListMenu(c *gin.Context) {
 	id := c.Query("id")
 	sortBy := c.Query("sort")
 	sortOrder := c.Query("order")
@@ -62,14 +62,14 @@ func (p *Controller) listMenuValidate(id, sort, order string) (primitive.ObjectI
 // @Router /review [GET]
 // @Success 200 {object} Controller
 func (p *Controller) ReadReviewControl(c *gin.Context) {
-	menuId := c.Query("id")
-	id, res := p.readReviewInputValidate(menuId)
+	menuID := c.Query("id")
+	id, res := p.readReviewInputValidate(menuID)
 	if res != nil {
 		res.Response(c)
 		return
 	}
 	result := p.md.ReadReview(id)
-	c.JSON(200, gin.H{"msg": "ok", "list": result})
+	result.Response(c)
 }
 
 func (p *Controller) readReviewInputValidate(id string) (primitive.ObjectID, *protocol.ApiResponse[any]) {

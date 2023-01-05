@@ -36,19 +36,15 @@ func (p *Router) Index() *gin.Engine {
 	e.GET("/swagger/:any", ginSwg.WrapHandler(swgFiles.Handler))
 	docs.SwaggerInfo.Host = "localhost:8080"
 
-	menuAdmin := e.Group("/menu/admin", liteAuth())
+	menu := e.Group("/menu", liteAuth())
 	{
-		menuAdmin.POST("", p.ct.CreateMenuController)
-		menuAdmin.PATCH("", p.ct.UpdateMenu)
-	}
-	menuRead := e.Group("/menu", liteAuth())
-	{
-		menuRead.GET("", p.ct.ListMenuControl)
+		menu.POST("", p.ct.CreateMenu)
+		menu.PATCH("", p.ct.UpdateMenu)
+		menu.GET("", p.ct.ListMenu)
 	}
 	order := e.Group("/order", liteAuth())
 	{
-		order.POST("", p.ct.CreateOrder) //주문
-
+		order.POST("", p.ct.CreateOrder)                   //주문
 		order.GET("", p.ct.ListOrder)                      //주문 조회
 		order.GET("/admin", p.ct.AdminListOrderController) //주문 상태 조회
 		order.PATCH("", p.ct.UpdateOrder)                  //주문 변경

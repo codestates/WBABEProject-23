@@ -2,7 +2,6 @@ package model
 
 import (
 	"context"
-	"fmt"
 	"lecture/WBABEProject-23/protocol"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -11,7 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func (m *Model) ListOrder(userName string, cur bool) []Order {
+func (m *Model) ListOrder(userName string, cur bool) *protocol.ApiResponse[any] {
 	var filter bson.M
 	if cur {
 		filter = bson.M{"orderer": userName, "state": bson.M{"$ne": DeliverComplete}}
@@ -21,17 +20,15 @@ func (m *Model) ListOrder(userName string, cur bool) []Order {
 	option := options.Find().SetProjection(bson.M{"orderer": 1, "state": 1, "businessname": 1, "menu": 1, "createdat": 1})
 	cursor, err := m.colOrder.Find(context.TODO(), filter, option)
 	if err != nil {
-		fmt.Println(err)
-		panic(err)
+		return protocol.Fail(err, protocol.InternalServerError)
 	}
 	defer cursor.Close(context.TODO())
 
 	var orders []Order
 	if err = cursor.All(context.TODO(), &orders); err != nil {
-		fmt.Println(err)
-		panic(err)
+		return protocol.Fail(err, protocol.InternalServerError)
 	}
-	return orders
+	return protocol.SuccessData(orders, protocol.OK)
 }
 
 func (m *Model) AdminListOrder(id primitive.ObjectID) *protocol.ApiResponse[any] {

@@ -19,8 +19,7 @@ import (
 // @Success 200 {object} Controller
 func (p *Controller) CreateReview(c *gin.Context) {
 	var input ReviewInput
-	err := c.ShouldBind(&input)
-	if err != nil {
+	if err := c.ShouldBind(&input); err != nil {
 		protocol.Fail(err, protocol.BadRequest).Response(c)
 		return
 	}

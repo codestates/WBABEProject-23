@@ -56,36 +56,6 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/menu/admin": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "call NewMenu, return ok by json.",
-                "parameters": [
-                    {
-                        "description": "메뉴 입력",
-                        "name": "id",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/controller.CreateMenuInput"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/controller.Controller"
-                        }
-                    }
-                }
             },
             "patch": {
                 "consumes": [
@@ -326,26 +296,6 @@ const docTemplate = `{
         "controller.Controller": {
             "type": "object"
         },
-        "controller.CreateMenuInput": {
-            "type": "object",
-            "properties": {
-                "businessID": {
-                    "type": "string"
-                },
-                "category": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "origin": {
-                    "type": "string"
-                },
-                "price": {
-                    "type": "integer"
-                }
-            }
-        },
         "controller.CreateOrderInput": {
             "type": "object",
             "properties": {
@@ -444,12 +394,18 @@ const docTemplate = `{
         },
         "controller.UpdateStateInput": {
             "type": "object",
+            "required": [
+                "orderId",
+                "state"
+            ],
             "properties": {
                 "orderId": {
                     "type": "string"
                 },
                 "state": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 10,
+                    "minimum": 1
                 }
             }
         }

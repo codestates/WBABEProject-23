@@ -1,19 +1,6 @@
 definitions:
   controller.Controller:
     type: object
-  controller.CreateMenuInput:
-    properties:
-      businessID:
-        type: string
-      category:
-        type: string
-      name:
-        type: string
-      origin:
-        type: string
-      price:
-        type: integer
-    type: object
   controller.CreateOrderInput:
     properties:
       bid:
@@ -81,7 +68,12 @@ definitions:
       orderId:
         type: string
       state:
+        maximum: 10
+        minimum: 1
         type: integer
+    required:
+    - orderId
+    - state
     type: object
 info:
   contact: {}
@@ -114,7 +106,6 @@ paths:
           schema:
             $ref: '#/definitions/controller.Controller'
       summary: call ListMenu, return ok by json.
-  /menu/admin:
     patch:
       consumes:
       - application/json
@@ -133,24 +124,6 @@ paths:
           schema:
             $ref: '#/definitions/controller.Controller'
       summary: call UpdateMenu, return ok by json.
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: 메뉴 입력
-        in: body
-        name: id
-        required: true
-        schema:
-          $ref: '#/definitions/controller.CreateMenuInput'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/controller.Controller'
-      summary: call NewMenu, return ok by json.
   /order:
     get:
       consumes:

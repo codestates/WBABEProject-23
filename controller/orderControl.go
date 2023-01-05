@@ -88,8 +88,7 @@ func (p *Controller) ListOrder(c *gin.Context) {
 	cur := c.Query("cur")
 
 	result := p.md.ListOrder(userName, cur == "1")
-
-	c.JSON(200, gin.H{"msg": "ok", "list": result})
+	result.Response(c)
 }
 
 // UpdateOrder godoc

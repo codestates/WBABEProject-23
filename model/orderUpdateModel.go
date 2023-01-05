@@ -42,17 +42,16 @@ func (m *Model) UpdateOrder(orderID primitive.ObjectID, menu []MenuNum) *protoco
 	return protocol.Success(protocol.OK)
 }
 
-func (m *Model) UpdateOrderState(orderID primitive.ObjectID, state int) bool {
+func (m *Model) UpdateOrderState(orderID primitive.ObjectID, state int) *protocol.ApiResponse[any] {
 	filter := bson.M{"_id": orderID}
 	update := bson.M{"$set": bson.M{"state": state}}
 
 	result, err := m.colOrder.UpdateOne(context.TODO(), filter, update)
 	if err == mongo.ErrNoDocuments {
-		fmt.Println(err)
-		return false
+		return protocol.Fail(err, protocol.InternalServerError)
 	} else if err != nil {
 		panic(err)
 	}
 	fmt.Println(result)
-	return true
+	return protocol.Success(protocol.OK)
 }

@@ -4,6 +4,7 @@ import (
 	"lecture/WBABEProject-23/protocol"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -23,7 +24,7 @@ func (p *Controller) AdminListOrderController(c *gin.Context) {
 		res.Response(c)
 	}
 	result := p.md.AdminListOrder(BID)
-	c.JSON(200, gin.H{"msg": "ok", "list": result})
+	result.Response(c)
 }
 
 func (p *Controller) adminListOrderInputValidate(id string) (primitive.ObjectID, *protocol.ApiResponse[any]) {
@@ -45,20 +46,20 @@ func (p *Controller) adminListOrderInputValidate(id string) (primitive.ObjectID,
 // @Success 200 {object} Controller
 func (p *Controller) UpdateState(c *gin.Context) {
 	var input UpdateStateInput
-	c.ShouldBind(&input)
+	if err := c.ShouldBindWith(&input, binding.JSON); err != nil {
+		protocol.Fail(err, protocol.BadRequest).Response(c)
+		return
+	}
 	orderId, err := primitive.ObjectIDFromHex(input.OrderId)
 	if err != nil {
-		panic(err)
+		protocol.Fail(err, protocol.BadRequest).Response(c)
+		return
 	}
 	result := p.md.UpdateOrderState(orderId, input.State)
-	if result {
-		c.JSON(200, gin.H{"msg": "update request success"})
-	} else {
-		c.JSON(200, gin.H{"msg": "update request failed"})
-	}
+	result.Response(c)
 }
 
 type UpdateStateInput struct {
-	OrderId string `bson:"orderid:`
-	State   int    `bson:"state"`
+	OrderId string `bson:"orderid" binding:"required"`
+	State   int    `bson:"state" binding:"required,gte=1,lte=10"`
 }

@@ -3,7 +3,8 @@ package controller
 import (
 	"lecture/WBABEProject-23/model"
 	"lecture/WBABEProject-23/protocol"
-	"net/http"
+
+	"github.com/gin-gonic/gin/binding"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -11,24 +12,33 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// NewMenu godoc
-// @Summary call NewMenu, return ok by json.
+// CreateMenu godoc
+// @Summary call CreateMenu, return ok by json.
 // @새로운 메뉴 추가.
-// @name NewMenu
+// @name CreateMenu
 // @Accept  json
 // @Produce  json
 // @Param id body CreateMenuInput true "메뉴 입력"
-// @Router /menu/admin [POST]
+// @Router /menu [POST]
 // @Success 200 {object} Controller
-func (p *Controller) CreateMenuController(c *gin.Context) {
+
+type CreateMenuInput struct {
+	Name       string `bson:"name" binding:"required"`
+	Price      int    `bson:"price" binding:"required,gte=0"`
+	Origin     string `bson:"origin" binding:"required"`
+	Category   string `bson:"category" binding:"required"`
+	BusinessID string `bson:"business_id,omitempty" binding:"required"`
+}
+
+func (p *Controller) CreateMenu(c *gin.Context) {
 	var body CreateMenuInput
-	if err := c.ShouldBind(&body); err != nil {
-		c.String(http.StatusBadRequest, "Bad request: %v", err)
+	if err := c.ShouldBindWith(&body, binding.JSON); err != nil {
+		protocol.Fail(err, protocol.BadRequest).Response(c)
 		return
 	}
-	menu, errRes := p.createMenuInputValidate(body)
-	if errRes != nil {
-		errRes.Response(c)
+	menu, res := p.createMenuInputValidate(body)
+	if res != nil {
+		res.Response(c)
 		return
 	}
 	result := p.md.CreateMenu(*menu)
@@ -36,7 +46,6 @@ func (p *Controller) CreateMenuController(c *gin.Context) {
 }
 
 func (p *Controller) createMenuInputValidate(body CreateMenuInput) (res *model.Menu, errorRes *protocol.ApiResponse[any]) {
-
 	res = new(model.Menu)
 	var err error
 	bID, err := primitive.ObjectIDFromHex(body.BusinessID)
@@ -56,15 +65,6 @@ func (p *Controller) createMenuInputValidate(body CreateMenuInput) (res *model.M
 	return res, nil
 }
 
-// swag input 용
-type CreateMenuInput struct {
-	Name       string `bson:"name"`
-	Price      int    `bson:"price"`
-	Origin     string `bson:"origin"`
-	Category   string `bson:"category"`
-	BusinessID string `bson:"business_id,omitempty"`
-}
-
 // UpdateMenu godoc
 // @Summary call UpdateMenu, return ok by json.
 // @메뉴 수정/삭제.
@@ -72,7 +72,7 @@ type CreateMenuInput struct {
 // @Accept  json
 // @Produce  json
 // @Param id body UpdateMenuInput true "User input 바꿀 메뉴 이름 toUpdate로 추가, 바꿀내용만 작성"
-// @Router /menu/admin [PATCH]
+// @Router /menu [PATCH]
 // @Success 200 {object} Controller
 func (p *Controller) UpdateMenu(c *gin.Context) {
 	var body UpdateMenuInput
