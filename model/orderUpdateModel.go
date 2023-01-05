@@ -36,7 +36,7 @@ func (m *Model) UpdateOrder(orderID primitive.ObjectID, menu []MenuNum) *protoco
 	update := bson.M{"$set": bson.M{"menu": menu, "state": AdditionalReceipting, "updated_at": time.Now()}}
 	result, err := m.colOrder.UpdateOne(context.TODO(), filter, update)
 	if err != nil {
-		panic(err)
+		return protocol.Fail(err, protocol.InternalServerError)
 	}
 	fmt.Println(result)
 	return protocol.Success(protocol.OK)
@@ -48,9 +48,9 @@ func (m *Model) UpdateOrderState(orderID primitive.ObjectID, state int) *protoco
 
 	result, err := m.colOrder.UpdateOne(context.TODO(), filter, update)
 	if err == mongo.ErrNoDocuments {
-		return protocol.Fail(err, protocol.InternalServerError)
+		return protocol.Fail(err, protocol.BadRequest)
 	} else if err != nil {
-		panic(err)
+		return protocol.Fail(err, protocol.InternalServerError)
 	}
 	fmt.Println(result)
 	return protocol.Success(protocol.OK)
