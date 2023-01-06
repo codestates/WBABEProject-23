@@ -3,22 +3,23 @@ package model
 import (
 	"context"
 	"fmt"
+	"lecture/WBABEProject-23/model/entitiy"
 	"lecture/WBABEProject-23/protocol"
 	"reflect"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func (m *Model) UpdateOrder(orderID primitive.ObjectID, menu []MenuNum) *protocol.ApiResponse[any] {
+func (m *Model) UpdateOrder(orderID primitive.ObjectID, menu []entitiy.MenuNum) *protocol.ApiResponse[any] {
 	filter := bson.M{"_id": orderID}
 
-	var order Order
+	var order entitiy.Order
 	err := m.colOrder.FindOne(context.TODO(), filter).Decode(&order)
 	if err != nil {
-		fmt.Println(err)
-		panic(err)
+		return protocol.Fail(err, protocol.InternalServerError)
 	}
 	addition := false
 	if reflect.DeepEqual(order.Menu, menu) {
@@ -26,33 +27,32 @@ func (m *Model) UpdateOrder(orderID primitive.ObjectID, menu []MenuNum) *protoco
 	}
 	state := order.State
 	switch state {
-	case DeliverComplete, Delivering, ReceiptCancled, AdditionalReceiptCancled:
+	case entitiy.DeliverComplete, entitiy.Delivering, entitiy.ReceiptCancled, entitiy.AdditionalReceiptCancled:
 		return protocol.FailCustomMessage(nil, "The state is not updatable", protocol.BadRequest)
-	case ReceiptCooking, AdditionalReceiptCooking:
+	case entitiy.ReceiptCooking, entitiy.AdditionalReceiptCooking:
 		if !addition {
 			return protocol.FailCustomMessage(nil, "The state is not updatable", protocol.BadRequest)
 		}
 	}
-	update := bson.M{"$set": bson.M{"menu": menu, "state": AdditionalReceipting}}
+	update := bson.M{"$set": bson.M{"menu": menu, "state": entitiy.AdditionalReceipting, "updated_at": time.Now()}}
 	result, err := m.colOrder.UpdateOne(context.TODO(), filter, update)
 	if err != nil {
-		panic(err)
+		return protocol.Fail(err, protocol.InternalServerError)
 	}
 	fmt.Println(result)
 	return protocol.Success(protocol.OK)
 }
 
-func (m *Model) UpdateOrderState(orderID primitive.ObjectID, state int) bool {
+func (m *Model) UpdateOrderState(orderID primitive.ObjectID, state int) *protocol.ApiResponse[any] {
 	filter := bson.M{"_id": orderID}
 	update := bson.M{"$set": bson.M{"state": state}}
 
 	result, err := m.colOrder.UpdateOne(context.TODO(), filter, update)
 	if err == mongo.ErrNoDocuments {
-		fmt.Println(err)
-		return false
+		return protocol.Fail(err, protocol.BadRequest)
 	} else if err != nil {
-		panic(err)
+		return protocol.Fail(err, protocol.InternalServerError)
 	}
 	fmt.Println(result)
-	return true
+	return protocol.Success(protocol.OK)
 }

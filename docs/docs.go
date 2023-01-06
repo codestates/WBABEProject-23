@@ -16,67 +16,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/menu/admin/modify": {
-            "patch": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "call UpdateMenu, return ok by json.",
-                "parameters": [
-                    {
-                        "description": "User input 바꿀 메뉴 이름 toUpdate로 추가, 바꿀내용만 작성",
-                        "name": "id",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/controller.UpdateMenuInput"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/controller.Controller"
-                        }
-                    }
-                }
-            }
-        },
-        "/menu/admin/new": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "call NewMenu, return ok by json.",
-                "parameters": [
-                    {
-                        "description": "메뉴 입력",
-                        "name": "id",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/controller.CreateMenuInput"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/controller.Controller"
-                        }
-                    }
-                }
-            }
-        },
-        "/menu/list": {
+        "/menu": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -84,7 +24,7 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "call ListMenu, return ok by json.",
+                "summary": "call ReadMenu, return ok by json.",
                 "parameters": [
                     {
                         "type": "string",
@@ -116,24 +56,24 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/menu/list/review": {
-            "get": {
+            },
+            "post": {
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
                 ],
-                "summary": "call ReadReviewControl, return ok by json.",
+                "summary": "call CreateMenu, return ok by json.",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "메뉴 id",
+                        "description": "메뉴 입력",
                         "name": "id",
-                        "in": "query",
-                        "required": true
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.CreateMenuInput"
+                        }
                     }
                 ],
                 "responses": {
@@ -144,37 +84,7 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/order/admin/list": {
-            "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "call AdminListOrderController, return ok by json.",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "사업체 id",
-                        "name": "id",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/controller.Controller"
-                        }
-                    }
-                }
-            }
-        },
-        "/order/admin/update": {
+            },
             "patch": {
                 "consumes": [
                     "application/json"
@@ -182,15 +92,15 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "call UpdateState, return ok by json.",
+                "summary": "call UpdateMenu, return ok by json.",
                 "parameters": [
                     {
-                        "description": "주문 번호, 상태 ",
-                        "name": "input",
+                        "description": "바꿀 메뉴id, 바꿀내용만 작성",
+                        "name": "id",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controller.UpdateStateInput"
+                            "$ref": "#/definitions/controller.UpdateMenuInput"
                         }
                     }
                 ],
@@ -204,7 +114,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/order/list": {
+        "/order": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -212,7 +122,7 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "call ListOrder, return ok by json.",
+                "summary": "call ReadOrder, return ok by json.",
                 "parameters": [
                     {
                         "type": "string",
@@ -237,9 +147,7 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/order/make": {
+            },
             "post": {
                 "consumes": [
                     "application/json"
@@ -267,9 +175,7 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/order/modify": {
+            },
             "patch": {
                 "consumes": [
                     "application/json"
@@ -299,7 +205,89 @@ const docTemplate = `{
                 }
             }
         },
+        "/order/admin": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "call AdminReadOrder, return ok by json.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "사업체 id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.Controller"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "call UpdateOrderState, return ok by json.",
+                "parameters": [
+                    {
+                        "description": "주문 번호, 상태 ",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.UpdateOrderStateInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.Controller"
+                        }
+                    }
+                }
+            }
+        },
         "/review": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "call ReadReviewControl, return ok by json.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "메뉴 id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.Controller"
+                        }
+                    }
+                }
+            },
             "post": {
                 "consumes": [
                     "application/json"
@@ -336,6 +324,12 @@ const docTemplate = `{
         },
         "controller.CreateMenuInput": {
             "type": "object",
+            "required": [
+                "businessID",
+                "category",
+                "name",
+                "origin"
+            ],
             "properties": {
                 "businessID": {
                     "type": "string"
@@ -350,7 +344,8 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "price": {
-                    "type": "integer"
+                    "type": "integer",
+                    "minimum": 0
                 }
             }
         },
@@ -369,7 +364,8 @@ const docTemplate = `{
                                 "type": "string"
                             },
                             "number": {
-                                "type": "integer"
+                                "type": "integer",
+                                "minimum": 0
                             }
                         }
                     }
@@ -395,7 +391,8 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "score": {
-                    "type": "number"
+                    "type": "number",
+                    "minimum": 0
                 }
             }
         },
@@ -421,10 +418,13 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "price": {
-                    "type": "integer"
+                    "type": "integer",
+                    "minimum": 0
                 },
                 "state": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 2,
+                    "minimum": 0
                 }
             }
         },
@@ -440,7 +440,8 @@ const docTemplate = `{
                                 "type": "string"
                             },
                             "number": {
-                                "type": "integer"
+                                "type": "integer",
+                                "minimum": 1
                             }
                         }
                     }
@@ -450,14 +451,20 @@ const docTemplate = `{
                 }
             }
         },
-        "controller.UpdateStateInput": {
+        "controller.UpdateOrderStateInput": {
             "type": "object",
+            "required": [
+                "orderId",
+                "state"
+            ],
             "properties": {
                 "orderId": {
                     "type": "string"
                 },
                 "state": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 10,
+                    "minimum": 1
                 }
             }
         }

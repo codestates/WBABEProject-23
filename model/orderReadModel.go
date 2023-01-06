@@ -2,7 +2,7 @@ package model
 
 import (
 	"context"
-	"fmt"
+	"lecture/WBABEProject-23/model/entitiy"
 	"lecture/WBABEProject-23/protocol"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -11,27 +11,25 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func (m *Model) ListOrder(userName string, cur bool) []Order {
+func (m *Model) ReadOrder(userName string, cur bool) *protocol.ApiResponse[any] {
 	var filter bson.M
 	if cur {
-		filter = bson.M{"orderer": userName, "state": bson.M{"$ne": DeliverComplete}}
+		filter = bson.M{"orderer": userName, "state": bson.M{"$ne": entitiy.DeliverComplete}}
 	} else {
-		filter = bson.M{"orderer": userName, "state": DeliverComplete}
+		filter = bson.M{"orderer": userName, "state": entitiy.DeliverComplete}
 	}
 	option := options.Find().SetProjection(bson.M{"orderer": 1, "state": 1, "businessname": 1, "menu": 1, "createdat": 1})
 	cursor, err := m.colOrder.Find(context.TODO(), filter, option)
 	if err != nil {
-		fmt.Println(err)
-		panic(err)
+		return protocol.Fail(err, protocol.InternalServerError)
 	}
 	defer cursor.Close(context.TODO())
 
-	var orders []Order
+	var orders []entitiy.Order
 	if err = cursor.All(context.TODO(), &orders); err != nil {
-		fmt.Println(err)
-		panic(err)
+		return protocol.Fail(err, protocol.InternalServerError)
 	}
-	return orders
+	return protocol.SuccessData(orders, protocol.OK)
 }
 
 func (m *Model) AdminListOrder(id primitive.ObjectID) *protocol.ApiResponse[any] {
@@ -41,7 +39,7 @@ func (m *Model) AdminListOrder(id primitive.ObjectID) *protocol.ApiResponse[any]
 		return protocol.Fail(err, protocol.InternalServerError)
 	}
 	defer cursor.Close(context.TODO())
-	var order []Order
+	var order []entitiy.Order
 	if err = cursor.All(context.TODO(), &order); err != nil {
 		return protocol.Fail(err, protocol.InternalServerError)
 	}
