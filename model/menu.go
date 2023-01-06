@@ -54,7 +54,6 @@ func (m *Model) CheckMenuFieldExists(field string) (bool, error) {
 
 func (m *Model) GetMenuById(id primitive.ObjectID) (*Menu, error) {
 	filter := bson.M{"_id": id, "is_deleted": false}
-
 	var result Menu
 	err := m.colMenu.FindOne(context.TODO(), filter).Decode(&result)
 	if err != nil {
