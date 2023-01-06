@@ -41,17 +41,16 @@ func (p *Controller) createReviewInputValidate(body ReviewInput) (*model.Review,
 	if err != nil {
 		return nil, protocol.Fail(err, protocol.BadRequest)
 	}
-	if r, e := p.md.CheckOrderByID(review.OrderID); !r {
-		return nil, protocol.FailCustomMessage(e, "No matching order", protocol.BadRequest)
-	}
 	review.MenuID, err = primitive.ObjectIDFromHex(body.MenuID)
 	if err != nil {
 		protocol.Fail(err, protocol.BadRequest)
 	}
-
 	review.Orderer = body.Orderer
 	review.Content = body.Content
 	review.Score = body.Score
+	if r := p.md.CheckOrderReviewable(review); r != nil {
+		return nil, r
+	}
 	return review, nil
 }
 

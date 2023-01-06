@@ -8,6 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 const (
@@ -50,6 +51,20 @@ func (m *Model) CheckOrderByID(id primitive.ObjectID) (bool, error) {
 		return false, err
 	} else {
 		return true, nil
+	}
+}
+
+func (m *Model) CheckOrderReviewable(review *Review) *protocol.ApiResponse[any] {
+	filter := bson.M{"_id": review.OrderID, "orderer": review.Orderer, "state": DeliverComplete}
+	projection := bson.M{"menu": bson.M{"$elemMatch": bson.M{"menu_id": review.MenuID, "is_reviewed": false}}}
+	findOption := options.FindOne().SetProjection(projection)
+	isIn := m.colOrder.FindOne(context.TODO(), filter, findOption)
+	if isIn.Err() == mongo.ErrNoDocuments {
+		return protocol.Fail(isIn.Err(), protocol.BadRequest)
+	} else if isIn.Err() != nil {
+		return protocol.Fail(isIn.Err(), protocol.InternalServerError)
+	} else {
+		return nil
 	}
 }
 

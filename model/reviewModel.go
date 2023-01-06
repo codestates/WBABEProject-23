@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"lecture/WBABEProject-23/protocol"
 
@@ -20,19 +21,22 @@ type Review struct {
 }
 
 func (m *Model) CreateReview(review *Review) *protocol.ApiResponse[any] {
-	orderFilter := bson.M{"_id": review.OrderID, "orderer": review.Orderer, "state": DeliverComplete}
-	orderProjection := bson.M{"menu": bson.M{"$elemMatch": bson.M{"menu_id": review.MenuID, "is_reviewed": false}}}
-	orderFindOption := options.FindOne().SetProjection(orderProjection)
-	isIn := m.colOrder.FindOne(context.TODO(), orderFilter, orderFindOption)
-	if isIn.Err() == mongo.ErrNoDocuments {
-		return protocol.Fail(isIn.Err(), protocol.BadRequest)
-	} else if isIn.Err() != nil {
-		return protocol.Fail(isIn.Err(), protocol.InternalServerError)
-	}
 	result, err := m.colReview.InsertOne(context.TODO(), review)
 	if err != nil {
 		return protocol.Fail(err, protocol.InternalServerError)
 	}
+	if res := m.updateOrderReviewd(review, result); res != nil {
+		return res
+	}
+	avg, res := m.calAvgScore(review)
+	if res != nil {
+		return res
+	}
+	res = m.menuReviewUpdate(review, avg)
+	return res
+}
+func (m *Model) updateOrderReviewd(review *Review, result *mongo.InsertOneResult) *protocol.ApiResponse[any] {
+	orderFilter := bson.M{"_id": review.OrderID, "orderer": review.Orderer, "state": DeliverComplete}
 	orderUpdate := bson.M{"$set": bson.M{
 		"menu.$[i].is_reviewed": true,
 		"menu.$[i].review":      bson.M{"$ref": "review", "$id": result.InsertedID},
@@ -41,12 +45,14 @@ func (m *Model) CreateReview(review *Review) *protocol.ApiResponse[any] {
 		Filters: []interface{}{bson.M{"i.menu_id": review.MenuID}},
 	}
 	orderUpdateOption := options.Update().SetArrayFilters(orderArrayFilters)
-	orderUpdateResult, err := m.colOrder.UpdateOne(context.TODO(), orderFilter, orderUpdate, orderUpdateOption)
+	_, err := m.colOrder.UpdateOne(context.TODO(), orderFilter, orderUpdate, orderUpdateOption)
 	if err != nil {
 		return protocol.Fail(err, protocol.InternalServerError)
 	}
-	fmt.Println(orderUpdateResult)
-	//////////////////////////////////////////////////////////////////////////////////////
+	return nil
+}
+
+func (m *Model) calAvgScore(review *Review) (float32, *protocol.ApiResponse[any]) {
 	pipeline := []bson.M{
 		{
 			"$match": bson.M{
@@ -69,27 +75,56 @@ func (m *Model) CreateReview(review *Review) *protocol.ApiResponse[any] {
 	}
 	cursor, err := m.colReview.Aggregate(context.TODO(), pipeline)
 	if err != nil {
-		return protocol.Fail(err, protocol.InternalServerError)
+		return 0, protocol.Fail(err, protocol.InternalServerError)
 	}
 	var sum struct {
 		TotalScore float32 `bson:"totalScore"`
-		Count      int     `bson:"count`
+		Count      int     `bson:"count"`
 	}
 	if cursor.Next(context.TODO()) {
 		if err := cursor.Decode(&sum); err != nil {
-			return protocol.Fail(err, protocol.InternalServerError)
+			return 0, protocol.Fail(err, protocol.InternalServerError)
 		}
 	} else {
 		fmt.Println("No documents found")
 	}
-	avg := sum.TotalScore / float32(sum.Count)
-	//////////////////////////////////////////////////////////////////////////
+	return sum.TotalScore / float32(sum.Count), nil
+}
+
+func (m *Model) menuReviewUpdate(review *Review, avg float32) *protocol.ApiResponse[any] {
 	menuFilter := bson.M{"_id": review.MenuID}
 	menuUpdate := bson.M{"$set": bson.M{"score": avg}}
-	menuUpdateResult, err := m.colMenu.UpdateOne(context.TODO(), menuFilter, menuUpdate)
+	_, err := m.colMenu.UpdateOne(context.TODO(), menuFilter, menuUpdate)
 	if err != nil {
 		return protocol.Fail(err, protocol.InternalServerError)
 	}
-	fmt.Println(menuUpdateResult)
 	return protocol.Success(protocol.Created)
+}
+
+func (m *Model) ReadReview(toRead primitive.ObjectID) *protocol.ApiResponse[any] {
+	pipeline := []bson.M{
+		{"$match": bson.M{"menu_id": toRead}},
+		{"$lookup": bson.M{
+			"from":         "menu",
+			"localField":   "menu_id",
+			"foreignField": "_id",
+			"as":           "menu_name",
+		}},
+		{"$unwind": "$menu_name"},
+	}
+	cursor, err := m.colReview.Aggregate(context.TODO(), pipeline)
+	if err != nil {
+		return protocol.Fail(err, protocol.InternalServerError)
+	}
+	defer cursor.Close(context.TODO())
+	results := []bson.M{}
+	err = cursor.All(context.TODO(), &results)
+	if err != nil {
+		return protocol.Fail(err, protocol.InternalServerError)
+	}
+	for _, result := range results {
+		res, _ := json.Marshal(result)
+		fmt.Println(res)
+	}
+	return protocol.SuccessData(results, protocol.OK)
 }
