@@ -21,15 +21,6 @@ import (
 // @Param id body CreateMenuInput true "메뉴 입력"
 // @Router /menu [POST]
 // @Success 200 {object} Controller
-
-type CreateMenuInput struct {
-	Name       string `bson:"name" binding:"required"`
-	Price      int    `bson:"price" binding:"gte=0"`
-	Origin     string `bson:"origin" binding:"required"`
-	Category   string `bson:"category" binding:"required"`
-	BusinessID string `bson:"business_id,omitempty" binding:"required"`
-}
-
 func (p *Controller) CreateMenu(c *gin.Context) {
 	var body CreateMenuInput
 	if err := c.ShouldBindWith(&body, binding.JSON); err != nil {
@@ -62,7 +53,16 @@ func (p *Controller) createMenuInputValidate(body CreateMenuInput) (res *entitiy
 	res.Category = body.Category
 	res.State = 1
 	res.IsDeleted = false
+	res.ID = primitive.NewObjectID()
 	return res, nil
+}
+
+type CreateMenuInput struct {
+	Name       string `bson:"name" binding:"required"`
+	Price      int    `bson:"price" binding:"gte=0"`
+	Origin     string `bson:"origin" binding:"required"`
+	Category   string `bson:"category" binding:"required"`
+	BusinessID string `bson:"business_id,omitempty" binding:"required"`
 }
 
 // UpdateMenu godoc
@@ -71,19 +71,9 @@ func (p *Controller) createMenuInputValidate(body CreateMenuInput) (res *entitiy
 // @name UpdateMenu
 // @Accept  json
 // @Produce  json
-// @Param id body UpdateMenuInput true "User input 바꿀 메뉴 이름 toUpdate로 추가, 바꿀내용만 작성"
+// @Param id body UpdateMenuInput true "바꿀 메뉴id, 바꿀내용만 작성"
 // @Router /menu [PATCH]
 // @Success 200 {object} Controller
-type UpdateMenuInput struct {
-	ID        string `bson:"id" binding:"required"`
-	Name      string `bson:"name,omitempty"`
-	State     int    `bson:"state,omitempty" binding:"gte=1,lte=2"`
-	Price     int    `bson:"price,omitempty" binding:"gte=0"`
-	Origin    string `bson:"origin,omitempty"`
-	Category  string `bson:"category,omitempty"`
-	IsDeleted bool   `bson:"is_deleted,omitempty"`
-}
-
 func (p *Controller) UpdateMenu(c *gin.Context) {
 	var body UpdateMenuInput
 	if err := c.ShouldBindJSON(&body); err != nil {
@@ -123,6 +113,16 @@ func (p *Controller) updateMenuInputValidate(body UpdateMenuInput) (*entitiy.Men
 		menu.Category = body.Category
 	}
 	return menu, nil
+}
+
+type UpdateMenuInput struct {
+	ID        string `bson:"id" binding:"required"`
+	Name      string `bson:"name"`
+	State     int    `bson:"state" binding:"gte=0,lte=2"`
+	Price     int    `bson:"price" binding:"gte=0"`
+	Origin    string `bson:"origin"`
+	Category  string `bson:"category"`
+	IsDeleted bool   `bson:"is_deleted"`
 }
 
 // ReadMenu godoc

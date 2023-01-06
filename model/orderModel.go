@@ -31,7 +31,7 @@ func (m *Model) CheckOrderReviewable(review *entitiy.Review) *protocol.ApiRespon
 	findOption := options.FindOne().SetProjection(projection)
 	isIn := m.colOrder.FindOne(context.TODO(), filter, findOption)
 	if isIn.Err() == mongo.ErrNoDocuments {
-		return protocol.Fail(isIn.Err(), protocol.BadRequest)
+		return protocol.FailCustomMessage(isIn.Err(), "The order is not found or not reviewable", protocol.BadRequest)
 	} else if isIn.Err() != nil {
 		return protocol.Fail(isIn.Err(), protocol.InternalServerError)
 	} else {

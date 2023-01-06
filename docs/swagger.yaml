@@ -1,6 +1,25 @@
 definitions:
   controller.Controller:
     type: object
+  controller.CreateMenuInput:
+    properties:
+      businessID:
+        type: string
+      category:
+        type: string
+      name:
+        type: string
+      origin:
+        type: string
+      price:
+        minimum: 0
+        type: integer
+    required:
+    - businessID
+    - category
+    - name
+    - origin
+    type: object
   controller.CreateOrderInput:
     properties:
       bid:
@@ -11,6 +30,7 @@ definitions:
             menuID:
               type: string
             number:
+              minimum: 0
               type: integer
           type: object
         type: array
@@ -28,7 +48,30 @@ definitions:
       orderer:
         type: string
       score:
+        minimum: 0
         type: number
+    type: object
+  controller.UpdateMenuInput:
+    properties:
+      category:
+        type: string
+      id:
+        type: string
+      isDeleted:
+        type: boolean
+      name:
+        type: string
+      origin:
+        type: string
+      price:
+        minimum: 0
+        type: integer
+      state:
+        maximum: 2
+        minimum: 0
+        type: integer
+    required:
+    - id
     type: object
   controller.UpdateOrderInput:
     properties:
@@ -38,13 +81,14 @@ definitions:
             menuID:
               type: string
             number:
+              minimum: 1
               type: integer
           type: object
         type: array
       orderID:
         type: string
     type: object
-  controller.UpdateStateInput:
+  controller.UpdateOrderStateInput:
     properties:
       orderId:
         type: string
@@ -86,7 +130,43 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/controller.Controller'
-      summary: call ListMenu, return ok by json.
+      summary: call ReadMenu, return ok by json.
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: 바꿀 메뉴id, 바꿀내용만 작성
+        in: body
+        name: id
+        required: true
+        schema:
+          $ref: '#/definitions/controller.UpdateMenuInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Controller'
+      summary: call UpdateMenu, return ok by json.
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 메뉴 입력
+        in: body
+        name: id
+        required: true
+        schema:
+          $ref: '#/definitions/controller.CreateMenuInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Controller'
+      summary: call CreateMenu, return ok by json.
   /order:
     get:
       consumes:
@@ -109,7 +189,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/controller.Controller'
-      summary: call ListOrder, return ok by json.
+      summary: call ReadOrder, return ok by json.
     patch:
       consumes:
       - application/json
@@ -163,7 +243,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/controller.Controller'
-      summary: call AdminListOrderController, return ok by json.
+      summary: call AdminReadOrder, return ok by json.
     patch:
       consumes:
       - application/json
@@ -173,7 +253,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/controller.UpdateStateInput'
+          $ref: '#/definitions/controller.UpdateOrderStateInput'
       produces:
       - application/json
       responses:
@@ -181,7 +261,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/controller.Controller'
-      summary: call UpdateState, return ok by json.
+      summary: call UpdateOrderState, return ok by json.
   /review:
     get:
       consumes:

@@ -24,7 +24,7 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "call ListMenu, return ok by json.",
+                "summary": "call ReadMenu, return ok by json.",
                 "parameters": [
                     {
                         "type": "string",
@@ -56,6 +56,62 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "call CreateMenu, return ok by json.",
+                "parameters": [
+                    {
+                        "description": "메뉴 입력",
+                        "name": "id",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.CreateMenuInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.Controller"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "call UpdateMenu, return ok by json.",
+                "parameters": [
+                    {
+                        "description": "바꿀 메뉴id, 바꿀내용만 작성",
+                        "name": "id",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.UpdateMenuInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.Controller"
+                        }
+                    }
+                }
             }
         },
         "/order": {
@@ -66,7 +122,7 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "call ListOrder, return ok by json.",
+                "summary": "call ReadOrder, return ok by json.",
                 "parameters": [
                     {
                         "type": "string",
@@ -157,7 +213,7 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "call AdminListOrderController, return ok by json.",
+                "summary": "call AdminReadOrder, return ok by json.",
                 "parameters": [
                     {
                         "type": "string",
@@ -183,7 +239,7 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "call UpdateState, return ok by json.",
+                "summary": "call UpdateOrderState, return ok by json.",
                 "parameters": [
                     {
                         "description": "주문 번호, 상태 ",
@@ -191,7 +247,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controller.UpdateStateInput"
+                            "$ref": "#/definitions/controller.UpdateOrderStateInput"
                         }
                     }
                 ],
@@ -266,6 +322,33 @@ const docTemplate = `{
         "controller.Controller": {
             "type": "object"
         },
+        "controller.CreateMenuInput": {
+            "type": "object",
+            "required": [
+                "businessID",
+                "category",
+                "name",
+                "origin"
+            ],
+            "properties": {
+                "businessID": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "origin": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "integer",
+                    "minimum": 0
+                }
+            }
+        },
         "controller.CreateOrderInput": {
             "type": "object",
             "properties": {
@@ -281,7 +364,8 @@ const docTemplate = `{
                                 "type": "string"
                             },
                             "number": {
-                                "type": "integer"
+                                "type": "integer",
+                                "minimum": 0
                             }
                         }
                     }
@@ -307,7 +391,40 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "score": {
-                    "type": "number"
+                    "type": "number",
+                    "minimum": 0
+                }
+            }
+        },
+        "controller.UpdateMenuInput": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isDeleted": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "origin": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "state": {
+                    "type": "integer",
+                    "maximum": 2,
+                    "minimum": 0
                 }
             }
         },
@@ -323,7 +440,8 @@ const docTemplate = `{
                                 "type": "string"
                             },
                             "number": {
-                                "type": "integer"
+                                "type": "integer",
+                                "minimum": 1
                             }
                         }
                     }
@@ -333,7 +451,7 @@ const docTemplate = `{
                 }
             }
         },
-        "controller.UpdateStateInput": {
+        "controller.UpdateOrderStateInput": {
             "type": "object",
             "required": [
                 "orderId",

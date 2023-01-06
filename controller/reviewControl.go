@@ -59,7 +59,7 @@ type ReviewInput struct {
 	MenuID  string  `bson:"menu_id" json:"menu_id"`
 	Orderer string  `bson:"orderer"`
 	Content string  `bson:"content"`
-	Score   float32 `bson:"score" binding:"gte=0, lte=5"`
+	Score   float32 `bson:"score" binding:"gte=0,lte=5"`
 }
 
 // ReadReviewControl godoc

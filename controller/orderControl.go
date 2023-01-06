@@ -2,7 +2,6 @@ package controller
 
 import (
 	"fmt"
-	"lecture/WBABEProject-23/model"
 	"lecture/WBABEProject-23/model/entitiy"
 	"lecture/WBABEProject-23/protocol"
 	"time"
@@ -42,7 +41,7 @@ func (p *Controller) createOrderInputValidate(body *CreateOrderInput) (*entitiy.
 
 	for i, menu := range body.Menu {
 		t, err := primitive.ObjectIDFromHex(menu.MenuID)
-		order.Menu = append(order.Menu, model.MenuNum{t, menu.Number, false})
+		order.Menu = append(order.Menu, entitiy.MenuNum{t, menu.Number, false})
 		if err != nil {
 			return nil, protocol.Fail(err, protocol.BadRequest)
 		}
@@ -64,7 +63,7 @@ func (p *Controller) createOrderInputValidate(body *CreateOrderInput) (*entitiy.
 	order.ID = primitive.NewObjectID()
 	order.CreatedAt = time.Now()
 	order.UpdatedAt = order.CreatedAt
-	order.State = model.Receipting
+	order.State = entitiy.Receipting
 	return order, nil
 }
 
@@ -118,7 +117,7 @@ func (p *Controller) UpdateOrder(c *gin.Context) {
 	result.Response(c)
 }
 
-func (p *Controller) updateOrderInputValidate(input UpdateOrderInput) (orderID primitive.ObjectID, menu []model.MenuNum, res *protocol.ApiResponse[any]) {
+func (p *Controller) updateOrderInputValidate(input UpdateOrderInput) (orderID primitive.ObjectID, menu []entitiy.MenuNum, res *protocol.ApiResponse[any]) {
 	orderID, err := primitive.ObjectIDFromHex(input.OrderID)
 	if err != nil {
 		return primitive.NilObjectID, nil, protocol.Fail(err, protocol.BadRequest)
@@ -128,7 +127,7 @@ func (p *Controller) updateOrderInputValidate(input UpdateOrderInput) (orderID p
 		if err != nil {
 			return primitive.NilObjectID, nil, protocol.Fail(err, protocol.BadRequest)
 		}
-		menu = append(menu, model.MenuNum{
+		menu = append(menu, entitiy.MenuNum{
 			MenuID:     id,
 			Number:     m.Number,
 			IsReviewed: false,
