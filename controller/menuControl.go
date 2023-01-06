@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"lecture/WBABEProject-23/model"
+	"lecture/WBABEProject-23/model/entitiy"
 	"lecture/WBABEProject-23/protocol"
 
 	"github.com/gin-gonic/gin/binding"
@@ -45,8 +45,8 @@ func (p *Controller) CreateMenu(c *gin.Context) {
 	result.Response(c)
 }
 
-func (p *Controller) createMenuInputValidate(body CreateMenuInput) (res *model.Menu, errorRes *protocol.ApiResponse[any]) {
-	res = new(model.Menu)
+func (p *Controller) createMenuInputValidate(body CreateMenuInput) (res *entitiy.Menu, errorRes *protocol.ApiResponse[any]) {
+	res = new(entitiy.Menu)
 	var err error
 	bID, err := primitive.ObjectIDFromHex(body.BusinessID)
 	if err != nil {
@@ -98,7 +98,7 @@ func (p *Controller) UpdateMenu(c *gin.Context) {
 	res.Response(c)
 }
 
-func (p *Controller) updateMenuInputValidate(body UpdateMenuInput) (*model.Menu, *protocol.ApiResponse[any]) {
+func (p *Controller) updateMenuInputValidate(body UpdateMenuInput) (*entitiy.Menu, *protocol.ApiResponse[any]) {
 	toUpdate, err := primitive.ObjectIDFromHex(body.ID)
 	if err != nil {
 		return nil, protocol.Fail(err, protocol.BadRequest)

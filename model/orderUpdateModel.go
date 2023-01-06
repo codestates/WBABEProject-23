@@ -3,6 +3,7 @@ package model
 import (
 	"context"
 	"fmt"
+	"lecture/WBABEProject-23/model/entitiy"
 	"lecture/WBABEProject-23/protocol"
 	"reflect"
 	"time"
@@ -12,10 +13,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func (m *Model) UpdateOrder(orderID primitive.ObjectID, menu []MenuNum) *protocol.ApiResponse[any] {
+func (m *Model) UpdateOrder(orderID primitive.ObjectID, menu []entitiy.MenuNum) *protocol.ApiResponse[any] {
 	filter := bson.M{"_id": orderID}
 
-	var order Order
+	var order entitiy.Order
 	err := m.colOrder.FindOne(context.TODO(), filter).Decode(&order)
 	if err != nil {
 		return protocol.Fail(err, protocol.InternalServerError)
@@ -26,14 +27,14 @@ func (m *Model) UpdateOrder(orderID primitive.ObjectID, menu []MenuNum) *protoco
 	}
 	state := order.State
 	switch state {
-	case DeliverComplete, Delivering, ReceiptCancled, AdditionalReceiptCancled:
+	case entitiy.DeliverComplete, entitiy.Delivering, entitiy.ReceiptCancled, entitiy.AdditionalReceiptCancled:
 		return protocol.FailCustomMessage(nil, "The state is not updatable", protocol.BadRequest)
-	case ReceiptCooking, AdditionalReceiptCooking:
+	case entitiy.ReceiptCooking, entitiy.AdditionalReceiptCooking:
 		if !addition {
 			return protocol.FailCustomMessage(nil, "The state is not updatable", protocol.BadRequest)
 		}
 	}
-	update := bson.M{"$set": bson.M{"menu": menu, "state": AdditionalReceipting, "updated_at": time.Now()}}
+	update := bson.M{"$set": bson.M{"menu": menu, "state": entitiy.AdditionalReceipting, "updated_at": time.Now()}}
 	result, err := m.colOrder.UpdateOne(context.TODO(), filter, update)
 	if err != nil {
 		return protocol.Fail(err, protocol.InternalServerError)

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"lecture/WBABEProject-23/model/entitiy"
 	"lecture/WBABEProject-23/protocol"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -20,7 +21,7 @@ type Review struct {
 	Score   float32            `bson:"score"`
 }
 
-func (m *Model) CreateReview(review *Review) *protocol.ApiResponse[any] {
+func (m *Model) CreateReview(review *entitiy.Review) *protocol.ApiResponse[any] {
 	result, err := m.colReview.InsertOne(context.TODO(), review)
 	if err != nil {
 		return protocol.Fail(err, protocol.InternalServerError)
@@ -35,8 +36,8 @@ func (m *Model) CreateReview(review *Review) *protocol.ApiResponse[any] {
 	res = m.menuReviewUpdate(review, avg)
 	return res
 }
-func (m *Model) updateOrderReviewd(review *Review, result *mongo.InsertOneResult) *protocol.ApiResponse[any] {
-	orderFilter := bson.M{"_id": review.OrderID, "orderer": review.Orderer, "state": DeliverComplete}
+func (m *Model) updateOrderReviewd(review *entitiy.Review, result *mongo.InsertOneResult) *protocol.ApiResponse[any] {
+	orderFilter := bson.M{"_id": review.OrderID, "orderer": review.Orderer, "state": entitiy.DeliverComplete}
 	orderUpdate := bson.M{"$set": bson.M{
 		"menu.$[i].is_reviewed": true,
 		"menu.$[i].review":      bson.M{"$ref": "review", "$id": result.InsertedID},
@@ -52,7 +53,7 @@ func (m *Model) updateOrderReviewd(review *Review, result *mongo.InsertOneResult
 	return nil
 }
 
-func (m *Model) calAvgScore(review *Review) (float32, *protocol.ApiResponse[any]) {
+func (m *Model) calAvgScore(review *entitiy.Review) (float32, *protocol.ApiResponse[any]) {
 	pipeline := []bson.M{
 		{
 			"$match": bson.M{
@@ -91,7 +92,7 @@ func (m *Model) calAvgScore(review *Review) (float32, *protocol.ApiResponse[any]
 	return sum.TotalScore / float32(sum.Count), nil
 }
 
-func (m *Model) menuReviewUpdate(review *Review, avg float32) *protocol.ApiResponse[any] {
+func (m *Model) menuReviewUpdate(review *entitiy.Review, avg float32) *protocol.ApiResponse[any] {
 	menuFilter := bson.M{"_id": review.MenuID}
 	menuUpdate := bson.M{"$set": bson.M{"score": avg}}
 	_, err := m.colMenu.UpdateOne(context.TODO(), menuFilter, menuUpdate)

@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"lecture/WBABEProject-23/model"
+	"lecture/WBABEProject-23/model/entitiy"
 	"lecture/WBABEProject-23/protocol"
 
 	"github.com/gin-gonic/gin/binding"
@@ -34,8 +34,8 @@ func (p *Controller) CreateReview(c *gin.Context) {
 	result.Response(c)
 }
 
-func (p *Controller) createReviewInputValidate(body ReviewInput) (*model.Review, *protocol.ApiResponse[any]) {
-	review := new(model.Review)
+func (p *Controller) createReviewInputValidate(body ReviewInput) (*entitiy.Review, *protocol.ApiResponse[any]) {
+	review := new(entitiy.Review)
 	var err error
 	review.OrderID, err = primitive.ObjectIDFromHex(body.OrderID)
 	if err != nil {

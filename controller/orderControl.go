@@ -3,6 +3,7 @@ package controller
 import (
 	"fmt"
 	"lecture/WBABEProject-23/model"
+	"lecture/WBABEProject-23/model/entitiy"
 	"lecture/WBABEProject-23/protocol"
 	"time"
 
@@ -36,8 +37,8 @@ func (p *Controller) CreateOrder(c *gin.Context) {
 	result.Response(c)
 }
 
-func (p *Controller) createOrderInputValidate(body *CreateOrderInput) (*model.Order, *protocol.ApiResponse[any]) {
-	var order = new(model.Order)
+func (p *Controller) createOrderInputValidate(body *CreateOrderInput) (*entitiy.Order, *protocol.ApiResponse[any]) {
+	var order = new(entitiy.Order)
 
 	for i, menu := range body.Menu {
 		t, err := primitive.ObjectIDFromHex(menu.MenuID)
